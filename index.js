@@ -5,11 +5,18 @@ var path = require('path');
 // vendor
 var resv = require('resolve');
 
+// core modules replaced by their browser capable counterparts
+var core = {};
+
+fs.readdirSync(__dirname + '/builtin/').forEach(function(file) {
+    core[path.basename(file, '.js')] = path.join(__dirname, '/builtin/', file);
+});
+
 function resolve(id, parent, cb) {
 
-    // TODO(shylman) shim core modules
     if (resv.isCore(id)) {
-        return cb();
+        // return path to browser capable version if we have it
+        return cb(null, core[id]);
     }
 
     // if id is relative
@@ -62,4 +69,6 @@ function resolve(id, parent, cb) {
     var resolved = (shims) ? shims[full] || full : full;
     cb(null, resolved);
 };
+
+module.exports = resolve;
 
