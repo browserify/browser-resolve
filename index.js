@@ -32,9 +32,12 @@ function resolve(id, parent, cb) {
     // then load via relative path
     var base = path.dirname(parent.filename);
 
-    var paths = parent.paths.map(function(p) {
-        return path.dirname(p);
-    });
+    var paths = [];
+    if (parent && parent.paths) {
+        paths = parent.paths.map(function(p) {
+            return path.dirname(p);
+        });
+    }
 
     // TODO(shtylman) if id has no leading '.' then it will be
     // a module load and resolve will take care of it
@@ -56,8 +59,8 @@ function resolve(id, parent, cb) {
 
         var shims = {};
         Object.keys(info.browser).forEach(function(key) {
-            val = path.resolve(paths[i], info.browser[key]);
-            key = path.resolve(paths[i], key);
+            var val = path.resolve(paths[i], info.browser[key]);
+            var key = path.resolve(paths[i], key);
             shims[key] = val;
         });
         break;
@@ -69,8 +72,19 @@ function resolve(id, parent, cb) {
         paths: parent.paths,
         basedir: base,
         packageFilter: function(info) {
-            // if info.browser is an object?
-            info.main = info.browser;
+            // no browser field, keep info unchanged
+            if (!info.browser) {
+                return info;
+            }
+
+            // replace main
+            if (typeof info.browser === 'string') {
+                info.main = info.browser;
+                return info;
+            }
+
+            var replace_main = info.browser[info.main || './index.js'];
+            info.main = replace_main || info.main;
             return info;
         }
     });
