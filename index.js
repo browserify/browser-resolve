@@ -68,7 +68,7 @@ function resolve(id, parent, cb) {
 
     // our browser field resolver
     // if browser field is an object tho?
-    var full = resv.sync(id, {
+    var full = resv(id, {
         paths: parent.paths,
         basedir: base,
         packageFilter: function(info) {
@@ -87,10 +87,10 @@ function resolve(id, parent, cb) {
             info.main = replace_main || info.main;
             return info;
         }
+    }, function(err, full) {
+        var resolved = (shims) ? shims[full] || full : full;
+        cb(null, resolved);
     });
-
-    var resolved = (shims) ? shims[full] || full : full;
-    cb(null, resolved);
 };
 
 module.exports = resolve;

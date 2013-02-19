@@ -20,7 +20,7 @@
   "author": "Roman Shtylman <shtylman@gmail.com>",
   "license": "MIT",
   "dependencies": {
-    "resolve": "0.2.3",
+    "resolve": "0.3.0",
     "console-browserify": "0.1.6",
     "vm-browserify": "0.0.1",
     "crypto-browserify": "0.2.1",
