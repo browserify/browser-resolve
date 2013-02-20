@@ -30,6 +30,20 @@ test('string browser field as main', function(done) {
     });
 });
 
+// package.json has 'browser' field which is a string
+test('string browser field as main - require subfile', function(done) {
+    var parent = {
+        filename: fixtures_dir + '/module-c/browser.js',
+        paths: [ fixtures_dir + '/module-c/node_modules' ]
+    };
+
+    resolve('./bar', parent, function(err, path) {
+        assert.ifError(err);
+        assert.equal(path, require.resolve('./fixtures/node_modules/module-c/bar'));
+        done();
+    });
+});
+
 // package.json has browser field as object
 // one of the keys replaces the main file
 // this would be done if the user needed to replace main and some other module

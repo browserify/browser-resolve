@@ -43,9 +43,11 @@ function resolve(id, parent, cb) {
     // a module load and resolve will take care of it
 
     // identify if our file should be replaced per the browser field
-    var shims;
+    // original filename -> replacement
+    var shims = {};
     for (var i=0 ; i<paths.length ; ++i) {
-        var pkg_path = path.join(paths[i], 'package.json');
+        var cur_path = paths[i];
+        var pkg_path = path.join(cur_path, 'package.json');
 
         if (!fs.existsSync(pkg_path)) {
             continue;
@@ -53,14 +55,22 @@ function resolve(id, parent, cb) {
 
         var info = JSON.parse(fs.readFileSync(pkg_path, 'utf8'));
 
+        // no replacements, skip making shims
         if (!info.browser) {
             break;
         }
 
-        var shims = {};
+        // if browser field is a string
+        // then it just replaces the main entry point
+        if (typeof info.browser === 'string') {
+            var key = path.resolve(cur_path, info.main || 'index.js');
+            shims[key] = path.resolve(cur_path, info.browser);
+            break;
+        }
+
         Object.keys(info.browser).forEach(function(key) {
-            var val = path.resolve(paths[i], info.browser[key]);
-            var key = path.resolve(paths[i], key);
+            var val = path.resolve(cur_path, info.browser[key]);
+            var key = path.resolve(cur_path, key);
             shims[key] = val;
         });
         break;
@@ -73,7 +83,7 @@ function resolve(id, parent, cb) {
         basedir: base,
         packageFilter: function(info) {
             if (parent.packageFilter) info = parent.packageFilter(info);
-            
+
             // no browser field, keep info unchanged
             if (!info.browser) {
                 return info;
