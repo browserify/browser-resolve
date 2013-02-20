@@ -72,6 +72,8 @@ function resolve(id, parent, cb) {
         paths: parent.paths,
         basedir: base,
         packageFilter: function(info) {
+            if (parent.packageFilter) info = parent.packageFilter(info);
+            
             // no browser field, keep info unchanged
             if (!info.browser) {
                 return info;
