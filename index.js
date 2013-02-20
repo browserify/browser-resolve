@@ -56,6 +56,9 @@ function resolve(id, parent, cb) {
         if (!info.browser) {
             break;
         }
+        if (typeof info.browser === 'string') {
+            info.browser = { '.': info.browser };
+        }
 
         var shims = {};
         Object.keys(info.browser).forEach(function(key) {
