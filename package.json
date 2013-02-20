@@ -1,10 +1,10 @@
 {
   "name": "browser-resolve",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "description": "resolve which handles browser field support in package.json",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "mocha test/*.js"
   },
   "repository": {
     "type": "git",
@@ -14,13 +14,10 @@
     "resolve",
     "browser"
   ],
-  "scripts": {
-    "test": "mocha test/*.js"
-  },
   "author": "Roman Shtylman <shtylman@gmail.com>",
   "license": "MIT",
   "dependencies": {
-    "resolve": "0.2.3",
+    "resolve": "0.3.0",
     "console-browserify": "0.1.6",
     "vm-browserify": "0.0.1",
     "crypto-browserify": "0.2.1",
