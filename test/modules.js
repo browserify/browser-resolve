@@ -71,3 +71,17 @@ test('object browser field replace file', function(done) {
     });
 });
 
+// same as above, but without a paths field in parent
+// should still checks paths on the filename of parent
+test('object browser field replace file - no paths', function(done) {
+    var parent = {
+        filename: fixtures_dir + '/module-e/main.js'
+    };
+
+    resolve('./foo', parent, function(err, path) {
+        assert.ifError(err);
+        assert.equal(path, require.resolve('./fixtures/node_modules/module-e/browser'));
+        done();
+    });
+});
+

@@ -39,6 +39,8 @@ function resolve(id, parent, cb) {
         });
     }
 
+    paths.push(base);
+
     // TODO(shtylman) if id has no leading '.' then it will be
     // a module load and resolve will take care of it
 
