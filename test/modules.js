@@ -60,8 +60,7 @@ test('object browser field as main', function(done) {
 // the result is that ./foo resolves to ./browser
 test('object browser field replace file', function(done) {
     var parent = {
-        filename: fixtures_dir + '/module-e/main.js',
-        paths: [ fixtures_dir + '/module-e/node_modules']
+        filename: fixtures_dir + '/module-e/main.js'
     };
 
     resolve('./foo', parent, function(err, path) {
@@ -75,13 +74,26 @@ test('object browser field replace file', function(done) {
 // should still checks paths on the filename of parent
 test('object browser field replace file - no paths', function(done) {
     var parent = {
-        filename: fixtures_dir + '/module-e/main.js'
+        filename: fixtures_dir + '/module-f/lib/main.js'
     };
 
     resolve('./foo', parent, function(err, path) {
         assert.ifError(err);
-        assert.equal(path, require.resolve('./fixtures/node_modules/module-e/browser'));
+        assert.equal(path, require.resolve('./fixtures/node_modules/module-f/lib/browser'));
         done();
     });
 });
+
+test('replace module in browser field object', function(done) {
+    var parent = {
+        filename: fixtures_dir + '/module-g/index.js'
+    };
+
+    resolve('foobar', parent, function(err, path) {
+        assert.ifError(err);
+        assert.equal(path, require.resolve('./fixtures/node_modules/module-g/foobar-browser'));
+        done();
+    });
+});
+
 

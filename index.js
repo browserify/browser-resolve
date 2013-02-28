@@ -21,6 +21,27 @@ core['console'] = require.resolve('console-browserify');
 core['zlib'] = require.resolve('zlib-browserify');
 core['buffer'] = require.resolve('buffer-browserify');
 
+// given a path, create an array of node_module paths for it
+// borrowed from substack/resolve
+function nodeModulesPaths (start, cb) {
+    var splitRe = process.platform === 'win32' ? /[\/\\]/ : /\/+/;
+    var parts = start.split(splitRe);
+
+    var dirs = [];
+    for (var i = parts.length - 1; i >= 0; i--) {
+        if (parts[i] === 'node_modules') continue;
+        var dir = path.join(
+            path.join.apply(path, parts.slice(0, i + 1)),
+            'node_modules'
+        );
+        if (!parts[0].match(/([A-Za-z]:)/)) {
+            dir = '/' + dir;
+        }
+        dirs.push(dir);
+    }
+    return dirs;
+}
+
 function resolve(id, parent, cb) {
 
     if (resv.isCore(id)) {
@@ -32,14 +53,15 @@ function resolve(id, parent, cb) {
     // then load via relative path
     var base = path.dirname(parent.filename);
 
-    var paths = [];
+    var paths = nodeModulesPaths(base);
+
     if (parent && parent.paths) {
-        paths = parent.paths.map(function(p) {
-            return path.dirname(p);
-        });
+        paths.push.apply(paths, parent.paths);
     }
 
-    paths.push(base);
+    paths = paths.map(function(p) {
+        return path.dirname(p);
+    });
 
     // TODO(shtylman) if id has no leading '.' then it will be
     // a module load and resolve will take care of it
@@ -70,12 +92,23 @@ function resolve(id, parent, cb) {
             break;
         }
 
+        // http://nodejs.org/api/modules.html#modules_loading_from_node_modules_folders
         Object.keys(info.browser).forEach(function(key) {
             var val = path.resolve(cur_path, info.browser[key]);
+
+            // if does not begin with / ../ or ./ then it is a module
+            if (key[0] !== '/' && key[0] !== '.') {
+                return shims[key] = val;
+            }
+
             var key = path.resolve(cur_path, key);
             shims[key] = val;
         });
         break;
+    }
+
+    if (shims[id]) {
+        return cb(null, shims[id]);
     }
 
     // our browser field resolver
