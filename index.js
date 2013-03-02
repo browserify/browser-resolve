@@ -1,7 +1,6 @@
 // builtin
 var fs = require('fs');
 var path = require('path');
-var existsSync = fs.existsSync || path.existsSync;
 
 // vendor
 var resv = require('resolve');
@@ -43,6 +42,69 @@ function nodeModulesPaths (start, cb) {
     return dirs;
 }
 
+// paths is mutated
+// load shims from first package.json file found
+function load_shims(paths, cb) {
+    // identify if our file should be replaced per the browser field
+    // original filename|id -> replacement
+    var shims = {};
+
+    (function next() {
+        var cur_path = paths.shift();
+        if (!cur_path) {
+            return cb(null, shims);
+        }
+
+        var pkg_path = path.join(cur_path, 'package.json');
+
+        fs.readFile(pkg_path, 'utf8', function(err, data) {
+            if (err) {
+                // ignore paths we can't open
+                // avoids an exists check
+                if (err.code === 'ENOENT') {
+                    return next();
+                }
+
+                return cb(err);
+            }
+
+            try {
+                var info = JSON.parse(data);
+            }
+            catch (err) {
+                return cb(err);
+            }
+
+            // no replacements, skip shims
+            if (!info.browser) {
+                return cb(null, shims);
+            }
+
+            // if browser field is a string
+            // then it just replaces the main entry point
+            if (typeof info.browser === 'string') {
+                var key = path.resolve(cur_path, info.main || 'index.js');
+                shims[key] = path.resolve(cur_path, info.browser);
+                return cb(null, shims);
+            }
+
+            // http://nodejs.org/api/modules.html#modules_loading_from_node_modules_folders
+            Object.keys(info.browser).forEach(function(key) {
+                var val = path.resolve(cur_path, info.browser[key]);
+
+                // if does not begin with / ../ or ./ then it is a module
+                if (key[0] !== '/' && key[0] !== '.') {
+                    return shims[key] = val;
+                }
+
+                var key = path.resolve(cur_path, key);
+                shims[key] = val;
+            });
+            return cb(null, shims);
+        });
+    })();
+};
+
 function resolve(id, parent, cb) {
 
     if (resv.isCore(id)) {
@@ -50,10 +112,7 @@ function resolve(id, parent, cb) {
         return cb(null, core[id]);
     }
 
-    // if id is relative
-    // then load via relative path
     var base = path.dirname(parent.filename);
-
     var paths = nodeModulesPaths(base);
 
     if (parent && parent.paths) {
@@ -64,80 +123,43 @@ function resolve(id, parent, cb) {
         return path.dirname(p);
     });
 
-    // TODO(shtylman) if id has no leading '.' then it will be
-    // a module load and resolve will take care of it
-
-    // identify if our file should be replaced per the browser field
-    // original filename -> replacement
-    var shims = {};
-    for (var i=0 ; i<paths.length ; ++i) {
-        var cur_path = paths[i];
-        var pkg_path = path.join(cur_path, 'package.json');
-
-        if (!existsSync(pkg_path)) {
-            continue;
+    // we must always load shims because the browser field could shim out a module
+    load_shims(paths, function(err, shims) {
+        if (err) {
+            return cb(err);
         }
 
-        var info = JSON.parse(fs.readFileSync(pkg_path, 'utf8'));
-
-        // no replacements, skip making shims
-        if (!info.browser) {
-            break;
+        if (shims[id]) {
+            return cb(null, shims[id]);
         }
 
-        // if browser field is a string
-        // then it just replaces the main entry point
-        if (typeof info.browser === 'string') {
-            var key = path.resolve(cur_path, info.main || 'index.js');
-            shims[key] = path.resolve(cur_path, info.browser);
-            break;
-        }
+        // our browser field resolver
+        // if browser field is an object tho?
+        var full = resv(id, {
+            paths: parent.paths,
+            basedir: base,
+            packageFilter: function(info) {
+                if (parent.packageFilter) info = parent.packageFilter(info);
 
-        // http://nodejs.org/api/modules.html#modules_loading_from_node_modules_folders
-        Object.keys(info.browser).forEach(function(key) {
-            var val = path.resolve(cur_path, info.browser[key]);
+                // no browser field, keep info unchanged
+                if (!info.browser) {
+                    return info;
+                }
 
-            // if does not begin with / ../ or ./ then it is a module
-            if (key[0] !== '/' && key[0] !== '.') {
-                return shims[key] = val;
+                // replace main
+                if (typeof info.browser === 'string') {
+                    info.main = info.browser;
+                    return info;
+                }
+
+                var replace_main = info.browser[info.main || './index.js'];
+                info.main = replace_main || info.main;
+                return info;
             }
-
-            var key = path.resolve(cur_path, key);
-            shims[key] = val;
+        }, function(err, full) {
+            var resolved = (shims) ? shims[full] || full : full;
+            cb(null, resolved);
         });
-        break;
-    }
-
-    if (shims[id]) {
-        return cb(null, shims[id]);
-    }
-
-    // our browser field resolver
-    // if browser field is an object tho?
-    var full = resv(id, {
-        paths: parent.paths,
-        basedir: base,
-        packageFilter: function(info) {
-            if (parent.packageFilter) info = parent.packageFilter(info);
-
-            // no browser field, keep info unchanged
-            if (!info.browser) {
-                return info;
-            }
-
-            // replace main
-            if (typeof info.browser === 'string') {
-                info.main = info.browser;
-                return info;
-            }
-
-            var replace_main = info.browser[info.main || './index.js'];
-            info.main = replace_main || info.main;
-            return info;
-        }
-    }, function(err, full) {
-        var resolved = (shims) ? shims[full] || full : full;
-        cb(null, resolved);
     });
 };
 
