@@ -1,6 +1,7 @@
 // builtin
 var fs = require('fs');
 var path = require('path');
+var existsSync = fs.existsSync || path.existsSync;
 
 // vendor
 var resv = require('resolve');
@@ -73,7 +74,7 @@ function resolve(id, parent, cb) {
         var cur_path = paths[i];
         var pkg_path = path.join(cur_path, 'package.json');
 
-        if (!fs.existsSync(pkg_path)) {
+        if (!existsSync(pkg_path)) {
             continue;
         }
 
