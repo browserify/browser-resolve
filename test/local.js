@@ -13,3 +13,10 @@ test('local', function(done) {
     });
 });
 
+test('local extensions', function(done) {
+  resolve('./bar', { filename: fixtures_dir + '/phony.js' }, { extensions: ['.js', '.coffee'] }, function(err, path) {
+    assert.ifError(err);
+    assert.equal(path, require.resolve('./fixtures/bar.coffee'));
+    done();
+  });
+});

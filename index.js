@@ -105,7 +105,13 @@ function load_shims(paths, cb) {
     })();
 };
 
-function resolve(id, parent, cb) {
+extensions = ['.js'];
+
+function resolve(id, parent, opts, cb) {
+    if(opts instanceof Function) {
+      cb = opts;
+      opts = {};
+    }
 
     if (resv.isCore(id)) {
         // return path to browser capable version if we have it
@@ -114,6 +120,7 @@ function resolve(id, parent, cb) {
 
     var base = path.dirname(parent.filename);
     var paths = nodeModulesPaths(base);
+    var exts = opts.extensions || ['.js'];
 
     if (parent && parent.paths) {
         paths.push.apply(paths, parent.paths);
@@ -138,6 +145,7 @@ function resolve(id, parent, cb) {
         var full = resv(id, {
             paths: parent.paths,
             basedir: base,
+            extensions: exts,
             packageFilter: function(info) {
                 if (parent.packageFilter) info = parent.packageFilter(info);
 
