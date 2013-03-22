@@ -145,6 +145,7 @@ function resolve(id, opts, cb) {
         // if browser field is an object tho?
         var full = resv(id, {
             paths: opts.paths,
+            extensions: opts.extensions,
             basedir: base,
             packageFilter: function(info) {
                 if (opts.packageFilter) info = opts.packageFilter(info);
