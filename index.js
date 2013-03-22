@@ -105,7 +105,8 @@ function load_shims(paths, cb) {
     })();
 };
 
-function resolve(id, parent, cb) {
+function resolve(id, parent, cb, opts) {
+    opts = opts || {};
 
     if (resv.isCore(id)) {
         // return path to browser capable version if we have it
@@ -137,6 +138,7 @@ function resolve(id, parent, cb) {
         // if browser field is an object tho?
         var full = resv(id, {
             paths: parent.paths,
+            extensions: opts.extensions,
             basedir: base,
             packageFilter: function(info) {
                 if (parent.packageFilter) info = parent.packageFilter(info);
