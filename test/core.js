@@ -18,3 +18,11 @@ test('http', function(done) {
     });
 });
 
+test('dgram', function(done) {
+    resolve('dgram', {}, function(err, path) {
+        assert.ifError(err);
+        assert.equal(path, require.resolve('../builtin/dgram'));
+        done();
+    });
+});
+
