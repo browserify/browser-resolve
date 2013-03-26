@@ -136,7 +136,7 @@ function resolve(id, parent, cb) {
         // our browser field resolver
         // if browser field is an object tho?
         var full = resv(id, {
-            paths: parent.paths,
+            paths: paths,
             basedir: base,
             packageFilter: function(info) {
                 if (parent.packageFilter) info = parent.packageFilter(info);
