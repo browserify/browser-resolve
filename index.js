@@ -90,6 +90,9 @@ function load_shims(paths, cb) {
 
             // http://nodejs.org/api/modules.html#modules_loading_from_node_modules_folders
             Object.keys(info.browser).forEach(function(key) {
+                if (info.browser[key] === false) {
+                    return shims[key] = __dirname + '/empty.js';
+                }
                 var val = path.resolve(cur_path, info.browser[key]);
 
                 // if does not begin with / ../ or ./ then it is a module
