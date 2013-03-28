@@ -64,6 +64,48 @@ $ node example/custom.js
 /home/substack/projects/node-browser-resolve/example/custom/custom.js
 ```
 
-## license
+## skip
+
+You can skip over dependencies by setting a
+[browser field](https://gist.github.com/shtylman/4339901)
+value to `false`:
+
+``` json
+{
+  "name": "skip",
+  "version": "0.0.0",
+  "browser": {
+    "canvas": false
+  }
+}
+```
+
+This is handy if you have code like:
+
+``` js
+if (typeof window === 'undefined') {
+    var Canvas = require('canvas');
+}
+else {
+    // browser already has Canvas defined
+}
+```
+
+so that `require('canvas')` will get resolved to an empty file:
+
+``` js
+var resolve = require('browser-resolve');
+var parent = { filename: __dirname + '/skip/main.js' };
+resolve('canvas', parent, function(err, path) {
+    console.log(path);
+});
+```
+
+```
+$ node example/skip.js
+/home/substack/projects/node-browser-resolve/empty.js
+```
+
+# license
 
 MIT
