@@ -2,7 +2,9 @@
 
 node.js resolve algorithm with [browser](https://gist.github.com/shtylman/4339901) field support.
 
-## example
+# example
+
+## relative
 
 you can resolve files like `require.resolve()`:
 ``` js
@@ -17,6 +19,8 @@ $ node example/resolve.js
 /home/substack/projects/node-browser-resolve/index.js
 ```
 
+## core
+
 or if you `require()` core modules you'll get a version that works in browsers:
 
 ``` js
@@ -30,6 +34,8 @@ resolve('fs', null, function(err, path) {
 $ node example/builtin.js
 /home/substack/projects/node-browser-resolve/builtin/fs.js
 ```
+
+## custom
 
 and you can use the
 [browser field](https://gist.github.com/shtylman/4339901) to load
