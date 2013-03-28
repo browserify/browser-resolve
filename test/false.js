@@ -6,7 +6,7 @@ var fixtures_dir = __dirname + '/fixtures';
 
 test('false file', function(done) {
     var parent_file = fixtures_dir + '/node_modules/false/index.js';
-    resolve('./fake', { filename: parent_file }, function(err, p) {
+    resolve('./fake.js', { filename: parent_file }, function(err, p) {
         assert.ifError(err);
         assert.equal(p, path.normalize(__dirname + '/../empty.js'));
         done();
