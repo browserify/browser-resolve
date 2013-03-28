@@ -1,6 +1,9 @@
-if (typeof window === 'undefined') {
-    var Canvas = require('canvas');
-}
-else {
-    // browser already has Canvas defined
-}
+var tar = require('tar');
+
+exports.add = function (a, b) {
+    return a + b;
+};
+
+exports.parse = function () {
+    return tar.Parse();
+};

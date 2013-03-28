@@ -75,7 +75,7 @@ value to `false`:
   "name": "skip",
   "version": "0.0.0",
   "browser": {
-    "canvas": false
+    "tar": false
   }
 }
 ```
@@ -83,20 +83,24 @@ value to `false`:
 This is handy if you have code like:
 
 ``` js
-if (typeof window === 'undefined') {
-    var Canvas = require('canvas');
-}
-else {
-    // browser already has Canvas defined
-}
+var tar = require('tar');
+
+exports.add = function (a, b) {
+    return a + b;
+};
+
+exports.parse = function () {
+    return tar.Parse();
+};
 ```
 
-so that `require('canvas')` will get resolved to an empty file:
+so that `require('tar')` will just return `{}` in the browser because you don't
+intend to support the `.parse()` export in a browser environment.
 
 ``` js
 var resolve = require('browser-resolve');
 var parent = { filename: __dirname + '/skip/main.js' };
-resolve('canvas', parent, function(err, path) {
+resolve('tar', parent, function(err, path) {
     console.log(path);
 });
 ```

@@ -2,6 +2,6 @@
   "name": "skip",
   "version": "0.0.0",
   "browser": {
-    "canvas": false
+    "tar": false
   }
 }
