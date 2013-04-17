@@ -38,6 +38,7 @@ process.title = 'browser';
 process.browser = true;
 process.env = {};
 process.argv = [];
+process.version = '';
 
 process.binding = function (name) {
     if (name === 'evals') return (require)('vm')
