@@ -20,6 +20,7 @@ core['crypto'] = require.resolve('crypto-browserify');
 core['console'] = require.resolve('console-browserify');
 core['zlib'] = require.resolve('zlib-browserify');
 core['buffer'] = require.resolve('buffer-browserify');
+core['dns'] = require.resolve('dns-chromeify');
 core['net'] = require.resolve('net-browserify');
 
 // given a path, create an array of node_module paths for it
