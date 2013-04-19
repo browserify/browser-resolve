@@ -40,9 +40,20 @@ process.env = {};
 process.argv = [];
 process.version = '';
 
+var bindings = {
+    evals: (require)('vm')
+};
+
+process.registerBinding = function(name, value) {
+    bindings[name] = value;
+};
+
 process.binding = function (name) {
-    if (name === 'evals') return (require)('vm')
-    else throw new Error('No such module. (Possibly not yet loaded)')
+    if(bindings.hasOwnProperty(name)) {
+        return bindings[name];
+    } else {
+        throw new Error('No such module: ' + name);
+    }
 };
 
 (function () {
