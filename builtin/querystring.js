@@ -1,28 +1,3 @@
-var isArray = typeof Array.isArray === 'function'
-    ? Array.isArray
-    : function (xs) {
-        return Object.prototype.toString.call(xs) === '[object Array]'
-    };
-
-var objectKeys = Object.keys || function objectKeys(object) {
-    if (object !== Object(object)) throw new TypeError('Invalid object');
-    var keys = [];
-    for (var key in object) if (object.hasOwnProperty(key)) keys[keys.length] = key;
-    return keys;
-}
-
-
-/*!
- * querystring
- * Copyright(c) 2010 TJ Holowaychuk <tj@vision-media.ca>
- * MIT Licensed
- */
-
-/**
- * Library version.
- */
-
-exports.version = '0.3.1';
 
 /**
  * Object#toString() ref for stringify().
@@ -31,106 +6,176 @@ exports.version = '0.3.1';
 var toString = Object.prototype.toString;
 
 /**
+ * Array#indexOf shim.
+ */
+
+var indexOf = typeof Array.prototype.indexOf === 'function'
+  ? function(arr, el) { return arr.indexOf(el); }
+  : function(arr, el) {
+      for (var i = 0; i < arr.length; i++) {
+        if (arr[i] === el) return i;
+      }
+      return -1;
+    };
+
+/**
+ * Array.isArray shim.
+ */
+
+var isArray = Array.isArray || function(arr) {
+  return toString.call(arr) == '[object Array]';
+};
+
+/**
+ * Object.keys shim.
+ */
+
+var objectKeys = Object.keys || function(obj) {
+  var ret = [];
+  for (var key in obj) ret.push(key);
+  return ret;
+};
+
+/**
+ * Array#forEach shim.
+ */
+
+var forEach = typeof Array.prototype.forEach === 'function'
+  ? function(arr, fn) { return arr.forEach(fn); }
+  : function(arr, fn) {
+      for (var i = 0; i < arr.length; i++) fn(arr[i]);
+    };
+
+/**
+ * Array#reduce shim.
+ */
+
+var reduce = function(arr, fn, initial) {
+  if (typeof arr.reduce === 'function') return arr.reduce(fn, initial);
+  var res = initial;
+  for (var i = 0; i < arr.length; i++) res = fn(res, arr[i]);
+  return res;
+};
+
+/**
  * Cache non-integer test regexp.
  */
 
-var notint = /[^0-9]/;
+var isint = /^[0-9]+$/;
+
+function promote(parent, key) {
+  if (parent[key].length == 0) return parent[key] = {};
+  var t = {};
+  for (var i in parent[key]) t[i] = parent[key][i];
+  parent[key] = t;
+  return t;
+}
+
+function parse(parts, parent, key, val) {
+  var part = parts.shift();
+  // end
+  if (!part) {
+    if (isArray(parent[key])) {
+      parent[key].push(val);
+    } else if ('object' == typeof parent[key]) {
+      parent[key] = val;
+    } else if ('undefined' == typeof parent[key]) {
+      parent[key] = val;
+    } else {
+      parent[key] = [parent[key], val];
+    }
+    // array
+  } else {
+    var obj = parent[key] = parent[key] || [];
+    if (']' == part) {
+      if (isArray(obj)) {
+        if ('' != val) obj.push(val);
+      } else if ('object' == typeof obj) {
+        obj[objectKeys(obj).length] = val;
+      } else {
+        obj = parent[key] = [parent[key], val];
+      }
+      // prop
+    } else if (~indexOf(part, ']')) {
+      part = part.substr(0, part.length - 1);
+      if (!isint.test(part) && isArray(obj)) obj = promote(parent, key);
+      parse(parts, obj, part, val);
+      // key
+    } else {
+      if (!isint.test(part) && isArray(obj)) obj = promote(parent, key);
+      parse(parts, obj, part, val);
+    }
+  }
+}
 
 /**
- * Parse the given query `str`, returning an object.
+ * Merge parent key/val pair.
+ */
+
+function merge(parent, key, val){
+  if (~indexOf(key, ']')) {
+    var parts = key.split('[')
+      , len = parts.length
+      , last = len - 1;
+    parse(parts, parent, 'base', val);
+    // optimize
+  } else {
+    if (!isint.test(key) && isArray(parent.base)) {
+      var t = {};
+      for (var k in parent.base) t[k] = parent.base[k];
+      parent.base = t;
+    }
+    set(parent.base, key, val);
+  }
+
+  return parent;
+}
+
+/**
+ * Parse the given obj.
+ */
+
+function parseObject(obj){
+  var ret = { base: {} };
+  forEach(objectKeys(obj), function(name){
+    merge(ret, name, obj[name]);
+  });
+  return ret.base;
+}
+
+/**
+ * Parse the given str.
+ */
+
+function parseString(str){
+  return reduce(String(str).split('&'), function(ret, pair){
+    var eql = indexOf(pair, '=')
+      , brace = lastBraceInKey(pair)
+      , key = pair.substr(0, brace || eql)
+      , val = pair.substr(brace || eql, pair.length)
+      , val = val.substr(indexOf(val, '=') + 1, val.length);
+
+    // ?foo
+    if ('' == key) key = pair, val = '';
+    if ('' == key) return ret;
+
+    return merge(ret, decode(key), decode(val));
+  }, { base: {} }).base;
+}
+
+/**
+ * Parse the given query `str` or `obj`, returning an object.
  *
- * @param {String} str
+ * @param {String} str | {Object} obj
  * @return {Object}
  * @api public
  */
 
 exports.parse = function(str){
   if (null == str || '' == str) return {};
-
-  function promote(parent, key) {
-    if (parent[key].length == 0) return parent[key] = {};
-    var t = {};
-    for (var i in parent[key]) t[i] = parent[key][i];
-    parent[key] = t;
-    return t;
-  }
-
-  return String(str)
-    .split('&')
-    .reduce(function(ret, pair){
-      try{ 
-        pair = decodeURIComponent(pair.replace(/\+/g, ' '));
-      } catch(e) {
-        // ignore
-      }
-
-      var eql = pair.indexOf('=')
-        , brace = lastBraceInKey(pair)
-        , key = pair.substr(0, brace || eql)
-        , val = pair.substr(brace || eql, pair.length)
-        , val = val.substr(val.indexOf('=') + 1, val.length)
-        , parent = ret;
-
-      // ?foo
-      if ('' == key) key = pair, val = '';
-
-      // nested
-      if (~key.indexOf(']')) {
-        var parts = key.split('[')
-          , len = parts.length
-          , last = len - 1;
-
-        function parse(parts, parent, key) {
-          var part = parts.shift();
-
-          // end
-          if (!part) {
-            if (isArray(parent[key])) {
-              parent[key].push(val);
-            } else if ('object' == typeof parent[key]) {
-              parent[key] = val;
-            } else if ('undefined' == typeof parent[key]) {
-              parent[key] = val;
-            } else {
-              parent[key] = [parent[key], val];
-            }
-          // array
-          } else {
-            obj = parent[key] = parent[key] || [];
-            if (']' == part) {
-              if (isArray(obj)) {
-                if ('' != val) obj.push(val);
-              } else if ('object' == typeof obj) {
-                obj[objectKeys(obj).length] = val;
-              } else {
-                obj = parent[key] = [parent[key], val];
-              }
-            // prop
-            } else if (~part.indexOf(']')) {
-              part = part.substr(0, part.length - 1);
-              if(notint.test(part) && isArray(obj)) obj = promote(parent, key);
-              parse(parts, obj, part);
-            // key
-            } else {
-              if(notint.test(part) && isArray(obj)) obj = promote(parent, key);
-              parse(parts, obj, part);
-            }
-          }
-        }
-
-        parse(parts, parent, 'base');
-      // optimize
-      } else {
-        if (notint.test(key) && isArray(parent.base)) {
-          var t = {};
-          for(var k in parent.base) t[k] = parent.base[k];
-          parent.base = t;
-        }
-        set(parent.base, key, val);
-      }
-
-      return ret;
-    }, {base: {}}).base;
+  return 'object' == typeof str
+    ? parseObject(str)
+    : parseString(str);
 };
 
 /**
@@ -149,7 +194,7 @@ var stringify = exports.stringify = function(obj, prefix) {
   } else if ('string' == typeof obj) {
     return stringifyString(obj, prefix);
   } else {
-    return prefix;
+    return prefix + '=' + encodeURIComponent(String(obj));
   }
 };
 
@@ -180,7 +225,7 @@ function stringifyArray(arr, prefix) {
   var ret = [];
   if (!prefix) throw new TypeError('stringify expects an object');
   for (var i = 0; i < arr.length; i++) {
-    ret.push(stringify(arr[i], prefix + '[]'));
+    ret.push(stringify(arr[i], prefix + '[' + i + ']'));
   }
   return ret.join('&');
 }
@@ -198,12 +243,18 @@ function stringifyObject(obj, prefix) {
   var ret = []
     , keys = objectKeys(obj)
     , key;
+
   for (var i = 0, len = keys.length; i < len; ++i) {
     key = keys[i];
-    ret.push(stringify(obj[key], prefix
-      ? prefix + '[' + encodeURIComponent(key) + ']'
-      : encodeURIComponent(key)));
+    if (null == obj[key]) {
+      ret.push(encodeURIComponent(key) + '=');
+    } else {
+      ret.push(stringify(obj[key], prefix
+        ? prefix + '[' + encodeURIComponent(key) + ']'
+        : encodeURIComponent(key)));
+    }
   }
+
   return ret.join('&');
 }
 
@@ -246,5 +297,21 @@ function lastBraceInKey(str) {
     if (']' == c) brace = false;
     if ('[' == c) brace = true;
     if ('=' == c && !brace) return i;
+  }
+}
+
+/**
+ * Decode `str`.
+ *
+ * @param {String} str
+ * @return {String}
+ * @api private
+ */
+
+function decode(str) {
+  try {
+    return decodeURIComponent(str.replace(/\+/g, ' '));
+  } catch (err) {
+    return str;
   }
 }
