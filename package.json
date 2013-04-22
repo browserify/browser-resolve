@@ -23,7 +23,10 @@
     "crypto-browserify": "0.2.1",
     "http-browserify": "0.1.11",
     "buffer-browserify": "0.0.5",
-    "zlib-browserify": "0.0.1"
+    "zlib-browserify": "0.0.1",
+    "net-chromeify": "git://github.com/amiuhle/net-chromeify.git",
+    "dns-chromeify": "git://github.com/amiuhle/dns-chromeify.git",
+    "tcp_wrap-chromeify": "git://github.com/amiuhle/tcp_wrap-chromeify"
   },
   "devDependencies": {
     "mocha": "1.8.1"
