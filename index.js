@@ -5,22 +5,6 @@ var path = require('path');
 // vendor
 var resv = require('resolve');
 
-// core modules replaced by their browser capable counterparts
-var core = {};
-
-// load core modules from builtin dir
-fs.readdirSync(__dirname + '/builtin/').forEach(function(file) {
-    core[path.basename(file, '.js')] = path.join(__dirname, '/builtin/', file);
-});
-
-// manually add core which are provided by modules
-core['http'] = require.resolve('http-browserify');
-core['vm'] = require.resolve('vm-browserify');
-core['crypto'] = require.resolve('crypto-browserify');
-core['console'] = require.resolve('console-browserify');
-core['zlib'] = require.resolve('zlib-browserify');
-core['buffer'] = require.resolve('buffer-browserify');
-
 // given a path, create an array of node_module paths for it
 // borrowed from substack/resolve
 function nodeModulesPaths (start, cb) {
@@ -108,18 +92,26 @@ function load_shims(paths, cb) {
     })();
 };
 
-function resolve(id, parent, cb) {
+function resolve(id, opts, cb) {
 
-    if (resv.isCore(id)) {
-        // return path to browser capable version if we have it
-        return cb(null, core[id]);
+    // opts.filename
+    // opts.paths
+    // opts.modules
+    // opts.packageFilter
+
+    opts = opts || {};
+
+    var modules = opts.modules || {};
+    var shim_path = modules[id];
+    if (shim_path) {
+        return cb(null, shim_path);
     }
 
-    var base = path.dirname(parent.filename);
+    var base = path.dirname(opts.filename);
     var paths = nodeModulesPaths(base);
 
-    if (parent && parent.paths) {
-        paths.push.apply(paths, parent.paths);
+    if (opts.paths) {
+        paths.push.apply(paths, opts.paths);
     }
 
     paths = paths.map(function(p) {
@@ -139,10 +131,10 @@ function resolve(id, parent, cb) {
         // our browser field resolver
         // if browser field is an object tho?
         var full = resv(id, {
-            paths: parent.paths,
+            paths: opts.paths,
             basedir: base,
             packageFilter: function(info) {
-                if (parent.packageFilter) info = parent.packageFilter(info);
+                if (opts.packageFilter) info = opts.packageFilter(info);
 
                 // no browser field, keep info unchanged
                 if (!info.browser) {
