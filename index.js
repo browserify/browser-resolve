@@ -59,6 +59,12 @@ function load_shims(paths, cb) {
                 return cb(err);
             }
 
+            // support legacy browserify field for easier migration from legacy
+            // many packages used this field historically
+            if (info.browserify) {
+                info.browser = info.browserify;
+            }
+
             // no replacements, skip shims
             if (!info.browser) {
                 return cb(null, shims);
@@ -135,6 +141,11 @@ function resolve(id, opts, cb) {
             basedir: base,
             packageFilter: function(info) {
                 if (opts.packageFilter) info = opts.packageFilter(info);
+
+                // support legacy browserify field
+                if (info.browserify) {
+                    info.browser = info.browserify;
+                }
 
                 // no browser field, keep info unchanged
                 if (!info.browser) {
