@@ -56,6 +56,7 @@ function load_shims(paths, cb) {
                 var info = JSON.parse(data);
             }
             catch (err) {
+                err.message = pkg_path + ' : ' + err.message
                 return cb(err);
             }
 
