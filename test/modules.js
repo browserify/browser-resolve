@@ -131,7 +131,7 @@ test('replace module in object browser field with subdirectory containing packag
     resolve('foobar', parent, function(err, path, pkg) {
         assert.ifError(err);
         assert.equal(path, __dirname + '/fixtures/node_modules/module-i/foobar-browser/main.js');
-        assert.equal(pkg.main, 'main.js');
+        assert.equal(pkg.main, './main.js');
         done();
     });
 });
@@ -145,7 +145,7 @@ test('replace module in object browser field with subdirectory containing packag
     resolve('foobar', parent, function(err, path, pkg) {
         assert.ifError(err);
         assert.equal(path, __dirname + '/fixtures/node_modules/module-j/foobar-browser/browser.js');
-        assert.equal(pkg.main, 'browser.js');
+        assert.equal(pkg.main, './browser.js');
         done();
     });
 });
