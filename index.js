@@ -132,41 +132,53 @@ function resolve(id, opts, cb) {
         }
 
         if (shims[id]) {
-            return cb(null, shims[id]);
+          fs.stat(shims[id], function (err, stat) {
+              if (err) {
+                  return cb(err);
+              }
+              if (!stat.isDirectory()) {
+                  return cb(null, shims[id]);
+              }
+              return r(shims[id]);
+          });
+          return;
         }
 
         // our browser field resolver
         // if browser field is an object tho?
-        var full = resv(id, {
-            paths: opts.paths,
-            basedir: base,
-            packageFilter: function(info) {
-                if (opts.packageFilter) info = opts.packageFilter(info);
+        function r(id) {
+            var full = resv(id, {
+                paths: opts.paths,
+                basedir: base,
+                packageFilter: function(info) {
+                    if (opts.packageFilter) info = opts.packageFilter(info);
 
-                // support legacy browserify field
-                if (info.browserify) {
-                    info.browser = info.browserify;
-                }
+                    // support legacy browserify field
+                    if (info.browserify) {
+                        info.browser = info.browserify;
+                    }
 
-                // no browser field, keep info unchanged
-                if (!info.browser) {
+                    // no browser field, keep info unchanged
+                    if (!info.browser) {
+                        return info;
+                    }
+
+                    // replace main
+                    if (typeof info.browser === 'string') {
+                        info.main = info.browser;
+                        return info;
+                    }
+
+                    var replace_main = info.browser[info.main || './index.js'];
+                    info.main = replace_main || info.main;
                     return info;
                 }
-
-                // replace main
-                if (typeof info.browser === 'string') {
-                    info.main = info.browser;
-                    return info;
-                }
-
-                var replace_main = info.browser[info.main || './index.js'];
-                info.main = replace_main || info.main;
-                return info;
-            }
-        }, function(err, full) {
-            var resolved = (shims) ? shims[full] || full : full;
-            cb(null, resolved);
-        });
+            }, function(err, full) {
+                var resolved = (shims) ? shims[full] || full : full;
+                cb(null, resolved);
+            });
+        }
+        r(id);
     });
 };
 
