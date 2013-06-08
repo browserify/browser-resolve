@@ -137,7 +137,7 @@ function resolve(id, opts, cb) {
                   return cb(err);
               }
               if (!stat.isDirectory()) {
-                  return cb(null, shims[id]);
+                  return cb(null, shims[id], opts.package);
               }
               return r(shims[id]);
           });
@@ -150,6 +150,7 @@ function resolve(id, opts, cb) {
             var full = resv(id, {
                 paths: opts.paths,
                 basedir: base,
+                package: opts.package,
                 packageFilter: function(info) {
                     if (opts.packageFilter) info = opts.packageFilter(info);
 
@@ -173,9 +174,9 @@ function resolve(id, opts, cb) {
                     info.main = replace_main || info.main;
                     return info;
                 }
-            }, function(err, full) {
+            }, function(err, full, pkg) {
                 var resolved = (shims) ? shims[full] || full : full;
-                cb(null, resolved);
+                cb(null, resolved, pkg);
             });
         }
         r(id);
