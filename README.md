@@ -11,6 +11,7 @@ Resolve a module path and call `cb(err, path)`
 Options:
 
 * filename - the calling filename where the require call originated (in the source)
+* package - package metadata from where the require call originated
 * paths - require.paths array to use if nothing is found on the normal node_modules recursive walk
 * packageFilter - transform the parsed package.json contents before looking at the "main" field
 * modules - object with module id/name -> path mappings to consult before doing manual resolution (use to provide core modules)
