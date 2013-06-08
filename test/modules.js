@@ -108,7 +108,7 @@ test('replace module in browser field object', function(done) {
     });
 });
 
-test('replace module in browser field object with subdirectory', function(done) {
+test('replace module in object browser field with subdirectory', function(done) {
     var parent = {
         filename: fixtures_dir + '/module-h/index.js',
         package: { main: './index.js' }
@@ -122,7 +122,7 @@ test('replace module in browser field object with subdirectory', function(done) 
     });
 });
 
-test('replace module in browser field object with subdirectory containing package.json', function(done) {
+test('replace module in object browser field with subdirectory containing package.json', function(done) {
     var parent = {
         filename: fixtures_dir + '/module-i/index.js',
         package: { main: './index.js' }
@@ -132,6 +132,34 @@ test('replace module in browser field object with subdirectory containing packag
         assert.ifError(err);
         assert.equal(path, __dirname + '/fixtures/node_modules/module-i/foobar-browser/main.js');
         assert.equal(pkg.main, 'main.js');
+        done();
+    });
+});
+
+test('replace module in object browser field with subdirectory containing package.json with string browser field as main', function(done) {
+    var parent = {
+        filename: fixtures_dir + '/module-j/index.js',
+        package: { main: './index.js' }
+    };
+
+    resolve('foobar', parent, function(err, path, pkg) {
+        assert.ifError(err);
+        assert.equal(path, __dirname + '/fixtures/node_modules/module-j/foobar-browser/browser.js');
+        assert.equal(pkg.main, 'browser.js');
+        done();
+    });
+});
+
+test('replace module in object browser field with subdirectory containing package.json with object browser field as main', function(done) {
+    var parent = {
+        filename: fixtures_dir + '/module-k/index.js',
+        package: { main: './index.js' }
+    };
+
+    resolve('foobar', parent, function(err, path, pkg) {
+        assert.ifError(err);
+        assert.equal(path, __dirname + '/fixtures/node_modules/module-k/foobar-browser/browser.js');
+        assert.equal(pkg.main, './browser.js');
         done();
     });
 });
