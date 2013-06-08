@@ -108,4 +108,30 @@ test('replace module in browser field object', function(done) {
     });
 });
 
+test('replace module in browser field object with subdirectory', function(done) {
+    var parent = {
+        filename: fixtures_dir + '/module-h/index.js',
+        package: { main: './index.js' }
+    };
 
+    resolve('foobar', parent, function(err, path, pkg) {
+        assert.ifError(err);
+        assert.equal(path, __dirname + '/fixtures/node_modules/module-h/foobar-browser/index.js');
+        assert.equal(pkg.main, './index.js');
+        done();
+    });
+});
+
+test('replace module in browser field object with subdirectory containing package.json', function(done) {
+    var parent = {
+        filename: fixtures_dir + '/module-i/index.js',
+        package: { main: './index.js' }
+    };
+
+    resolve('foobar', parent, function(err, path, pkg) {
+        assert.ifError(err);
+        assert.equal(path, __dirname + '/fixtures/node_modules/module-i/foobar-browser/main.js');
+        assert.equal(pkg.main, 'main.js');
+        done();
+    });
+});
