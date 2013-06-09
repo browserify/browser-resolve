@@ -88,7 +88,7 @@ function load_shims(paths, cb) {
 
                 // if does not begin with / ../ or ./ then it is a module
                 if (key[0] !== '/' && key[0] !== '.') {
-                    return shims[key] = val;
+                    return shims[key] = info.browser[key];
                 }
 
                 var key = path.resolve(cur_path, key);
@@ -132,7 +132,13 @@ function resolve(id, opts, cb) {
         }
 
         if (shims[id]) {
-            return cb(null, shims[id]);
+            // if the shim was is an absolute path, it was fully resolved
+            if (shims[id][0] === '/') {
+                return cb(null, shims[id]);
+            }
+
+            // module -> alt-module shims
+            id = shims[id];
         }
 
         // our browser field resolver

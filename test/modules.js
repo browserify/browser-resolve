@@ -70,6 +70,32 @@ test('object browser field replace file', function(done) {
     });
 });
 
+// browser field in package.json maps "module" -> "alternate module"
+test('test foobar -> module-b replacement', function(done) {
+    var parent = {
+        filename: fixtures_dir + '/module-h/index.js'
+    };
+
+    resolve('foobar', parent, function(err, path) {
+        assert.ifError(err);
+        assert.equal(path, require.resolve('./fixtures/node_modules/module-b/main'));
+        done();
+    });
+});
+
+// same as above but replacing core
+test('test core -> module-c replacement', function(done) {
+    var parent = {
+        filename: fixtures_dir + '/module-h/index.js'
+    };
+
+    resolve('querystring', parent, function(err, path) {
+        assert.ifError(err);
+        assert.equal(path, require.resolve('./fixtures/node_modules/module-c/browser'));
+        done();
+    });
+});
+
 // same as above, but without a paths field in parent
 // should still checks paths on the filename of parent
 test('object browser field replace file - no paths', function(done) {
