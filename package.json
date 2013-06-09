@@ -17,7 +17,7 @@
   "author": "Roman Shtylman <shtylman@gmail.com>",
   "license": "MIT",
   "dependencies": {
-    "resolve": "0.3.1"
+    "resolve": "0.4.0"
   },
   "devDependencies": {
     "mocha": "1.8.1"
