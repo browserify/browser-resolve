@@ -62,7 +62,7 @@ function load_shims(paths, cb) {
 
             // support legacy browserify field for easier migration from legacy
             // many packages used this field historically
-            if (info.browserify && !info.browserify.transform) {
+            if (typeof info.browserify === 'string' && !info.browser) {
                 info.browser = info.browserify;
             }
 
@@ -151,7 +151,7 @@ function resolve(id, opts, cb) {
                 if (opts.packageFilter) info = opts.packageFilter(info);
 
                 // support legacy browserify field
-                if (info.browserify && !info.browserify.transform) {
+                if (typeof info.browserify === 'string' && !info.browser) {
                     info.browser = info.browserify;
                 }
 
