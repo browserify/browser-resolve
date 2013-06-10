@@ -151,7 +151,7 @@ function resolve(id, opts, cb) {
                 if (opts.packageFilter) info = opts.packageFilter(info);
 
                 // support legacy browserify field
-                if (info.browserify) {
+                if (info.browserify && !info.browserify.transform) {
                     info.browser = info.browserify;
                 }
 

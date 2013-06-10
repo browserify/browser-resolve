@@ -123,6 +123,22 @@ test('test foobar -> module-b replacement with transform', function(done) {
     });
 });
 
+test('test foobar -> module-i replacement with transform in replacement', function(done) {
+    var parent = {
+        filename: fixtures_dir + '/module-j/index.js',
+        package: { main: './index.js' }
+    };
+
+    resolve('foobar', parent, function(err, path, pkg) {
+        assert.ifError(err);
+        assert.equal(path, require.resolve('./fixtures/node_modules/module-i/index'));
+        assert.equal(pkg.main, './index.js');
+        assert.equal(pkg.browser['foobar'], 'module-b');
+        assert.equal(pkg.browserify.transform, 'deamdify');
+        done();
+    });
+});
+
 // same as above, but without a paths field in parent
 // should still checks paths on the filename of parent
 test('object browser field replace file - no paths', function(done) {
