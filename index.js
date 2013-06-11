@@ -62,7 +62,7 @@ function load_shims(paths, cb) {
 
             // support legacy browserify field for easier migration from legacy
             // many packages used this field historically
-            if (info.browserify) {
+            if (typeof info.browserify === 'string' && !info.browser) {
                 info.browser = info.browserify;
             }
 
@@ -134,7 +134,7 @@ function resolve(id, opts, cb) {
         if (shims[id]) {
             // if the shim was is an absolute path, it was fully resolved
             if (shims[id][0] === '/') {
-                return cb(null, shims[id]);
+                return cb(null, shims[id], opts.package);
             }
 
             // module -> alt-module shims
@@ -146,11 +146,12 @@ function resolve(id, opts, cb) {
         var full = resv(id, {
             paths: opts.paths,
             basedir: base,
+            package: opts.package,
             packageFilter: function(info) {
                 if (opts.packageFilter) info = opts.packageFilter(info);
 
                 // support legacy browserify field
-                if (info.browserify) {
+                if (typeof info.browserify === 'string' && !info.browser) {
                     info.browser = info.browserify;
                 }
 
@@ -169,9 +170,9 @@ function resolve(id, opts, cb) {
                 info.main = replace_main || info.main;
                 return info;
             }
-        }, function(err, full) {
+        }, function(err, full, pkg) {
             var resolved = (shims) ? shims[full] || full : full;
-            cb(null, resolved);
+            cb(null, resolved, pkg);
         });
     });
 };
