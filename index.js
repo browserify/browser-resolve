@@ -84,11 +84,18 @@ function load_shims(paths, cb) {
                 if (info.browser[key] === false) {
                     return shims[key] = __dirname + '/empty.js';
                 }
-                var val = path.resolve(cur_path, info.browser[key]);
+
+                var val = info.browser[key];
+
+                // if target is a relative path, then resolve
+                // otherwise we assume target is a module
+                if (val[0] === '.') {
+                    val = path.resolve(cur_path, val);
+                }
 
                 // if does not begin with / ../ or ./ then it is a module
                 if (key[0] !== '/' && key[0] !== '.') {
-                    return shims[key] = info.browser[key];
+                    return shims[key] = val;
                 }
 
                 var key = path.resolve(cur_path, key);
@@ -172,6 +179,10 @@ function resolve(id, opts, cb) {
                 return info;
             }
         }, function(err, full, pkg) {
+            if (err) {
+                return cb(err);
+            }
+
             var resolved = (shims) ? shims[full] || full : full;
             cb(null, resolved, pkg);
         });
