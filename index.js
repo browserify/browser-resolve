@@ -115,12 +115,6 @@ function resolve(id, opts, cb) {
 
     opts = opts || {};
 
-    var modules = opts.modules || {};
-    var shim_path = modules[id];
-    if (shim_path) {
-        return cb(null, shim_path);
-    }
-
     var base = path.dirname(opts.filename);
     var paths = nodeModulesPaths(base);
 
@@ -146,6 +140,12 @@ function resolve(id, opts, cb) {
 
             // module -> alt-module shims
             id = shims[id];
+        }
+
+        var modules = opts.modules || {};
+        var shim_path = modules[id];
+        if (shim_path) {
+            return cb(null, shim_path);
         }
 
         // our browser field resolver
