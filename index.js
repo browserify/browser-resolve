@@ -174,9 +174,7 @@ function resolve(id, opts, cb) {
                     return info;
                 }
 
-                var replace_main = info.browser[info.main || './index.js'] ||
-                                   info.browser['./' + info.main || './index.js'];
-
+                var replace_main = info.browser[info.main || './index.js'];
                 info.main = replace_main || info.main;
                 return info;
             }
