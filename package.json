@@ -4,7 +4,7 @@
   "description": "resolve which handles browser field support in package.json",
   "main": "index.js",
   "scripts": {
-    "test": "mocha test/*.js"
+    "test": "mocha --reporter list test/*.js"
   },
   "repository": {
     "type": "git",
