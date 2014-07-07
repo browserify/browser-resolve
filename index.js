@@ -14,9 +14,8 @@ function nodeModulesPaths (start, cb) {
     var dirs = [];
     for (var i = parts.length - 1; i >= 0; i--) {
         if (parts[i] === 'node_modules') continue;
-        var dir = path.join(
-            path.join.apply(path, parts.slice(0, i + 1)),
-            'node_modules'
+        var dir = path.join.apply(
+            path, parts.slice(0, i + 1).concat(["node_modules"])
         );
         if (!parts[0].match(/([A-Za-z]:)/)) {
             dir = '/' + dir;
