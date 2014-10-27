@@ -30,7 +30,7 @@ function find_shims_in_package(pkgJson, cur_path, shims) {
         var info = JSON.parse(pkgJson);
     }
     catch (err) {
-        err.message = pkg_path + ' : ' + err.message
+        err.message = pkgJson + ' : ' + err.message
         throw err;
     }
 
