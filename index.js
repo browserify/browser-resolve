@@ -239,8 +239,10 @@ resolve.sync = function (id, opts) {
     // opts.packageFilter
 
     opts = opts || {};
-
-    var base = path.dirname(opts.filename);
+    var base = opts.basedir;
+    if(!base) base = path.dirname(opts.filename);
+   
+    console.error(base);
     var paths = nodeModulesPaths(base);
 
     if (opts.paths) {
