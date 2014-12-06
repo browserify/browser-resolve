@@ -186,6 +186,11 @@ function resolve(id, opts, cb) {
     opts = opts || {};
 
     var base = path.dirname(opts.filename);
+    
+    if (opts.basedir) {
+        base = opts.basedir;
+    }
+    
     var paths = nodeModulesPaths(base);
 
     if (opts.paths) {
@@ -239,8 +244,12 @@ resolve.sync = function (id, opts) {
     // opts.packageFilter
 
     opts = opts || {};
-
     var base = path.dirname(opts.filename);
+    
+    if (opts.basedir) {
+        base = opts.basedir;
+    }
+   
     var paths = nodeModulesPaths(base);
 
     if (opts.paths) {
