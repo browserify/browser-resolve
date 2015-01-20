@@ -143,37 +143,36 @@ function load_shims_sync(paths) {
 }
 
 function build_resolve_opts(opts, base) {
-    return {
-        paths: opts.paths,
-        extensions: opts.extensions,
-        basedir: base,
-        package: opts.package,
-        packageFilter: function (info, pkgdir) {
-            if (opts.packageFilter) info = opts.packageFilter(info, pkgdir);
+    var packageFilter = opts.packageFilter;
 
-            // support legacy browserify field
-            if (typeof info.browserify === 'string' && !info.browser) {
-                info.browser = info.browserify;
-            }
+    opts.basedir = base;
+    opts.packageFilter = function (info, pkgdir) {
+        if (packageFilter) info = packageFilter(info, pkgdir);
 
-            // no browser field, keep info unchanged
-            if (!info.browser) {
-                return info;
-            }
+        // support legacy browserify field
+        if (typeof info.browserify === 'string' && !info.browser) {
+            info.browser = info.browserify;
+        }
 
-            // replace main
-            if (typeof info.browser === 'string') {
-                info.main = info.browser;
-                return info;
-            }
-
-            var replace_main = info.browser[info.main || './index.js'] ||
-                info.browser['./' + info.main || './index.js'];
-
-            info.main = replace_main || info.main;
+        // no browser field, keep info unchanged
+        if (!info.browser) {
             return info;
         }
+
+        // replace main
+        if (typeof info.browser === 'string') {
+            info.main = info.browser;
+            return info;
+        }
+
+        var replace_main = info.browser[info.main || './index.js'] ||
+            info.browser['./' + info.main || './index.js'];
+
+        info.main = replace_main || info.main;
+        return info;
     };
+
+    return opts;
 }
 
 function resolve(id, opts, cb) {
