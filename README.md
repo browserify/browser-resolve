@@ -4,18 +4,18 @@ node.js resolve algorithm with [browser](https://gist.github.com/defunctzombie/4
 
 ## api
 
-### resolve(pkg, opts={}, cb)
+### resolve(id, opts={}, cb)
 
-Resolve a module path and call `cb(err, path)`
+Resolve a module path and call `cb(err, path [, pkg])`
 
 Options:
 
-* filename - the calling filename where the require call originated (in the source)
-* paths - require.paths array to use if nothing is found on the normal node_modules recursive walk
-* packageFilter - transform the parsed package.json contents before looking at the "main" field
-* modules - object with module id/name -> path mappings to consult before doing manual resolution (use to provide core modules)
+* `filename` - the calling filename where the `require()` call originated (in the source)
+* `paths` - `require.paths` array to use if nothing is found on the normal `node_modules` recursive walk
+* `packageFilter` - transform the parsed `package.json` contents before looking at the `main` field
+* `modules` - object with module id/name -> path mappings to consult before doing manual resolution (use to provide core modules)
 
-### resolve.sync(pkg, opts={})
+### resolve.sync(id, opts={})
 
 Same as the async resolve, just uses sync methods.
 
