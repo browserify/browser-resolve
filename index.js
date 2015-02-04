@@ -171,6 +171,31 @@ function build_resolve_opts(opts, base) {
         info.main = replace_main || info.main;
         return info;
     };
+    
+    var pathFilter = opts.pathFilter;
+    opts.pathFilter = function(info, path, relativePath) {
+    	if(relativePath[0] != '.') {
+    		relativePath = './' + relativePath;
+    	}
+    	var mappedPath;
+    	if(pathFilter) {
+    		mappedPath = pathFilter.apply(this, arguments);
+    	}
+    	if(mappedPath) {
+    		return mappedPath;
+    	}
+    	if(!info.browser) {
+    		return;
+    	}
+    	
+    	if(typeof info.browser) {
+    		mappedPath = info.browser[relativePath];
+    		if(!mappedPath && (relativePath.lastIndexOf(".js") === relativePath.length-3) ) {
+    			mappedPath = info.browser[relativePath+".js"];
+    		}
+    		return mappedPath;
+    	}
+    };
 
     return opts;
 }
