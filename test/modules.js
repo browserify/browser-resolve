@@ -73,6 +73,15 @@ test('object browser field as main', function(done) {
     });
 });
 
+test('deep module reference mapping', function(done) {
+    resolve('module-l/direct', { basedir: __dirname + '/fixtures', package: { main: 'fixtures' } }, function(err, path, pkg) {
+        assert.ifError(err);
+        assert.equal(path, require.resolve('./fixtures/node_modules/module-l/browser-direct'));
+        assert.equal(pkg.main, './browser.js');
+        done();
+    });
+});
+
 // browser field in package.json maps ./foo.js -> ./browser.js
 // when we resolve ./foo while in module-e, this mapping should take effect
 // the result is that ./foo resolves to ./browser
@@ -185,7 +194,7 @@ test('override engine shim', function(done) {
     var parent = {
         filename: fixtures_dir + '/override-engine-shim/index.js',
         package: { main: './index.js' },
-        modules: { url: "wonderland" }
+        modules: { url: 'wonderland' }
     };
     resolve('url', parent, function(err, path, pkg) {
         assert.ifError(err);
