@@ -1,6 +1,6 @@
 {
   "name": "browser-resolve",
-  "version": "1.7.1",
+  "version": "1.7.2",
   "description": "resolve which handles browser field support in package.json",
   "main": "index.js",
   "scripts": {
