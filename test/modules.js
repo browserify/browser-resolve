@@ -49,6 +49,23 @@ test('string browser field as main - require subfile', function(done) {
     });
 });
 
+// package.json has an alternative 'browser' field which is a string
+test('string alt browser field as main - require subfile', function(done) {
+    var parent = {
+        filename: fixtures_dir + '/module-c/chromeapp.js',
+        paths: [ fixtures_dir + '/module-c/node_modules' ],
+        package: { main: './chromeapp.js' },
+        browser: 'chromeapp'
+    };
+
+    resolve('./foo', parent, function(err, path, pkg) {
+        assert.ifError(err);
+        assert.equal(path, require.resolve('./fixtures/node_modules/module-c/foo'));
+        assert.equal(pkg.main, './chromeapp.js');
+        done();
+    });
+});
+
 // package.json has browser field as object
 // one of the keys replaces the main file
 // this would be done if the user needed to replace main and some other module
@@ -129,6 +146,22 @@ test('test core -> module-c replacement', function(done) {
     });
 });
 
+// same as above but with alt browser
+test('test core -> module-c replacement with alt browser', function(done) {
+    var parent = {
+        filename: fixtures_dir + '/module-h/index.js',
+        package: { main: './index.js' },
+        browser: 'chromeapp'
+    };
+
+    resolve('querystring', parent, function(err, path, pkg) {
+        assert.ifError(err);
+        assert.equal(path, require.resolve('./fixtures/node_modules/module-c/chromeapp'));
+        assert.equal(pkg.main, './chromeapp.js');
+        done();
+    });
+});
+
 // browser field in package.json maps "module" -> "alternate module"
 test('test foobar -> module-b replacement with transform', function(done) {
     var parent = {
@@ -203,3 +236,17 @@ test('override engine shim', function(done) {
     });
 });
 
+test('alt-browser field', function(done) {
+    var parent = {
+        filename: fixtures_dir + '/alt-browser-field/index.js',
+        package: { main: './index.js' },
+        browser: 'chromeapp'
+    };
+
+    resolve('url', parent, function(err, path, pkg) {
+        assert.ifError(err);
+        assert.equal(path, require.resolve('./fixtures/node_modules/alt-browser-field/url-chromeapp'));
+        assert.equal(pkg.main, './index.js');
+        done();
+    });
+});

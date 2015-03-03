@@ -14,6 +14,7 @@ Options:
 * `paths` - `require.paths` array to use if nothing is found on the normal `node_modules` recursive walk
 * `packageFilter` - transform the parsed `package.json` contents before looking at the `main` field
 * `modules` - object with module id/name -> path mappings to consult before doing manual resolution (use to provide core modules)
+* `browser` - the 'browser' property to use from package.json (defaults to 'browser')
 
 ### resolve.sync(id, opts={})
 
@@ -63,13 +64,16 @@ browser-specific versions of modules
   "version": "0.0.0",
   "browser": {
     "./main.js": "custom.js"
+  },
+  "chromeapp": {
+    "./main.js": "custom-chromeapp.js"
   }
 }
 ```
 
 ``` js
 var resolve = require('browser-resolve');
-var parent = { filename: __dirname + '/custom/file.js' };
+var parent = { filename: __dirname + '/custom/file.js' /*, browser: 'chromeapp' */ };
 resolve('./main.js', parent, function(err, path) {
     console.log(path);
 });

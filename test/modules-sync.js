@@ -137,3 +137,13 @@ test('override engine shim', function() {
     assert.equal(path, require.resolve('./fixtures/node_modules/override-engine-shim/url-browser'));
 });
 
+test('alt-browser field', function() {
+    var parent = {
+        filename: fixtures_dir + '/alt-browser-field/index.js',
+        package: { main: './index.js' },
+        browser: 'chromeapp'
+    };
+
+    var path = resolve.sync('url', parent);
+    assert.equal(path, require.resolve('./fixtures/node_modules/alt-browser-field/url-chromeapp'));
+});
