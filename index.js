@@ -25,7 +25,7 @@ function nodeModulesPaths (start, cb) {
     return dirs;
 }
 
-function find_shims_in_package(pkgJson, cur_path, shims) {
+function find_shims_in_package(pkgJson, cur_path, shims, browser) {
     try {
         var info = JSON.parse(pkgJson);
     }
@@ -34,32 +34,28 @@ function find_shims_in_package(pkgJson, cur_path, shims) {
         throw err;
     }
 
-    // support legacy browserify field for easier migration from legacy
-    // many packages used this field historically
-    if (typeof info.browserify === 'string' && !info.browser) {
-        info.browser = info.browserify;
-    }
+    replacements = getReplacements(info, browser);
 
     // no replacements, skip shims
-    if (!info.browser) {
+    if (!replacements) {
         return;
     }
 
-    // if browser field is a string
+    // if browser mapping is a string
     // then it just replaces the main entry point
-    if (typeof info.browser === 'string') {
+    if (typeof replacements === 'string') {
         var key = path.resolve(cur_path, info.main || 'index.js');
-        shims[key] = path.resolve(cur_path, info.browser);
+        shims[key] = path.resolve(cur_path, replacements);
         return;
     }
 
     // http://nodejs.org/api/modules.html#modules_loading_from_node_modules_folders
-    Object.keys(info.browser).forEach(function(key) {
-        if (info.browser[key] === false) {
+    Object.keys(replacements).forEach(function(key) {
+        if (replacements[key] === false) {
             return shims[key] = __dirname + '/empty.js';
         }
 
-        var val = info.browser[key];
+        var val = replacements[key];
 
         // if target is a relative path, then resolve
         // otherwise we assume target is a module
@@ -79,7 +75,7 @@ function find_shims_in_package(pkgJson, cur_path, shims) {
 
 // paths is mutated
 // load shims from first package.json file found
-function load_shims(paths, cb) {
+function load_shims(paths, browser, cb) {
     // identify if our file should be replaced per the browser field
     // original filename|id -> replacement
     var shims = {};
@@ -103,7 +99,7 @@ function load_shims(paths, cb) {
                 return cb(err);
             }
             try {
-                find_shims_in_package(data, cur_path, shims);
+                find_shims_in_package(data, cur_path, shims, browser);
                 return cb(null, shims);
             }
             catch (err) {
@@ -115,7 +111,7 @@ function load_shims(paths, cb) {
 
 // paths is mutated
 // synchronously load shims from first package.json file found
-function load_shims_sync(paths) {
+function load_shims_sync(paths, browser) {
     // identify if our file should be replaced per the browser field
     // original filename|id -> replacement
     var shims = {};
@@ -126,7 +122,7 @@ function load_shims_sync(paths) {
 
         try {
             var data = fs.readFileSync(pkg_path, 'utf8');
-            find_shims_in_package(data, cur_path, shims);
+            find_shims_in_package(data, cur_path, shims, browser);
             return shims;
         }
         catch (err) {
@@ -144,34 +140,34 @@ function load_shims_sync(paths) {
 
 function build_resolve_opts(opts, base) {
     var packageFilter = opts.packageFilter;
+    var browser = normalizeBrowserFieldName(opts.browser)
 
     opts.basedir = base;
     opts.packageFilter = function (info, pkgdir) {
         if (packageFilter) info = packageFilter(info, pkgdir);
 
-        // support legacy browserify field
-        if (typeof info.browserify === 'string' && !info.browser) {
-            info.browser = info.browserify;
-        }
+        var replacements = getReplacements(info, browser);
 
         // no browser field, keep info unchanged
-        if (!info.browser) {
+        if (!replacements) {
             return info;
         }
+
+        info[browser] = replacements;
 
         // replace main
-        if (typeof info.browser === 'string') {
-            info.main = info.browser;
+        if (typeof replacements === 'string') {
+            info.main = replacements;
             return info;
         }
 
-        var replace_main = info.browser[info.main || './index.js'] ||
-            info.browser['./' + info.main || './index.js'];
+        var replace_main = replacements[info.main || './index.js'] ||
+            replacements['./' + info.main || './index.js'];
 
         info.main = replace_main || info.main;
         return info;
     };
-    
+
     var pathFilter = opts.pathFilter;
     opts.pathFilter = function(info, path, relativePath) {
     	if(relativePath[0] != '.') {
@@ -187,7 +183,7 @@ function build_resolve_opts(opts, base) {
     	if(!info.browser) {
     		return;
     	}
-    	
+
     	if(typeof info.browser) {
     		mappedPath = info.browser[relativePath];
     		if(!mappedPath && (relativePath.lastIndexOf(".js") === relativePath.length-3) ) {
@@ -210,11 +206,11 @@ function resolve(id, opts, cb) {
     opts = opts || {};
 
     var base = path.dirname(opts.filename);
-    
+
     if (opts.basedir) {
         base = opts.basedir;
     }
-    
+
     var paths = nodeModulesPaths(base);
 
     if (opts.paths) {
@@ -226,7 +222,7 @@ function resolve(id, opts, cb) {
     });
 
     // we must always load shims because the browser field could shim out a module
-    load_shims(paths, function(err, shims) {
+    load_shims(paths, opts.browser, function(err, shims) {
         if (err) {
             return cb(err);
         }
@@ -269,11 +265,11 @@ resolve.sync = function (id, opts) {
 
     opts = opts || {};
     var base = path.dirname(opts.filename);
-    
+
     if (opts.basedir) {
         base = opts.basedir;
     }
-   
+
     var paths = nodeModulesPaths(base);
 
     if (opts.paths) {
@@ -285,7 +281,7 @@ resolve.sync = function (id, opts) {
     });
 
     // we must always load shims because the browser field could shim out a module
-    var shims = load_shims_sync(paths);
+    var shims = load_shims_sync(paths, opts.browser);
 
     if (shims[id]) {
         // if the shim was is an absolute path, it was fully resolved
@@ -309,6 +305,23 @@ resolve.sync = function (id, opts) {
 
     return (shims) ? shims[full] || full : full;
 };
+
+function normalizeBrowserFieldName(browser) {
+    return browser || 'browser';
+}
+
+function getReplacements(info, browser) {
+    browser = normalizeBrowserFieldName(browser);
+    var replacements = info[browser];
+
+    // support legacy browserify field for easier migration from legacy
+    // many packages used this field historically
+    if (typeof info.browserify === 'string' && !replacements) {
+        replacements = info.browserify;
+    }
+
+    return replacements;
+}
 
 module.exports = resolve;
 
