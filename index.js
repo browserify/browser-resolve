@@ -180,17 +180,17 @@ function build_resolve_opts(opts, base) {
     	if(mappedPath) {
     		return mappedPath;
     	}
-    	if(!info.browser) {
+
+        var replacements = info[browser];
+    	if(!replacements) {
     		return;
     	}
 
-    	if(typeof info.browser) {
-    		mappedPath = info.browser[relativePath];
-    		if(!mappedPath && (relativePath.lastIndexOf(".js") === relativePath.length-3) ) {
-    			mappedPath = info.browser[relativePath+".js"];
-    		}
-    		return mappedPath;
-    	}
+		mappedPath = replacements[relativePath];
+		if(!mappedPath && (relativePath.lastIndexOf(".js") === relativePath.length-3) ) {
+			mappedPath = replacements[relativePath+".js"];
+		}
+		return mappedPath;
     };
 
     return opts;
