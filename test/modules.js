@@ -250,3 +250,16 @@ test('alt-browser field', function(done) {
         done();
     });
 });
+
+test('alt-browser deep module reference mapping', function(done) {
+    resolve('alt-browser-field/direct', {
+        basedir: __dirname + '/fixtures',
+        package: { main: 'fixtures' },
+        browser: 'chromeapp'
+    }, function(err, path, pkg) {
+        assert.ifError(err);
+        assert.equal(path, require.resolve('./fixtures/node_modules/alt-browser-field/chromeapp-direct'));
+        assert.equal(pkg.main, './chromeapp.js');
+        done();
+    });
+});

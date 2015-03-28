@@ -15,7 +15,7 @@ function nodeModulesPaths (start, cb) {
     for (var i = parts.length - 1; i >= 0; i--) {
         if (parts[i] === 'node_modules') continue;
         var dir = path.join.apply(
-            path, parts.slice(0, i + 1).concat(["node_modules"])
+            path, parts.slice(0, i + 1).concat(['node_modules'])
         );
         if (!parts[0].match(/([A-Za-z]:)/)) {
             dir = '/' + dir;
@@ -170,27 +170,27 @@ function build_resolve_opts(opts, base) {
 
     var pathFilter = opts.pathFilter;
     opts.pathFilter = function(info, path, relativePath) {
-    	if(relativePath[0] != '.') {
-    		relativePath = './' + relativePath;
-    	}
-    	var mappedPath;
-    	if(pathFilter) {
-    		mappedPath = pathFilter.apply(this, arguments);
-    	}
-    	if(mappedPath) {
-    		return mappedPath;
-    	}
-    	if(!info.browser) {
-    		return;
-    	}
+        if (relativePath[0] != '.') {
+            relativePath = './' + relativePath;
+        }
+        var mappedPath;
+        if (pathFilter) {
+            mappedPath = pathFilter.apply(this, arguments);
+        }
+        if (mappedPath) {
+            return mappedPath;
+        }
 
-    	if(typeof info.browser) {
-    		mappedPath = info.browser[relativePath];
-    		if(!mappedPath && (relativePath.lastIndexOf(".js") === relativePath.length-3) ) {
-    			mappedPath = info.browser[relativePath+".js"];
-    		}
-    		return mappedPath;
-    	}
+        var replacements = info[browser];
+        if (!replacements) {
+            return;
+        }
+
+        mappedPath = replacements[relativePath];
+        if (!mappedPath && (relativePath.lastIndexOf('.js') === relativePath.length - 3)) {
+            mappedPath = replacements[relativePath + '.js'];
+        }
+        return mappedPath;
     };
 
     return opts;
@@ -324,4 +324,3 @@ function getReplacements(info, browser) {
 }
 
 module.exports = resolve;
-
