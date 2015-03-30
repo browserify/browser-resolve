@@ -312,7 +312,7 @@ function normalizeBrowserFieldName(browser) {
 
 function getReplacements(info, browser) {
     browser = normalizeBrowserFieldName(browser);
-    var replacements = info[browser];
+    var replacements = info[browser] || info.browser;
 
     // support legacy browserify field for easier migration from legacy
     // many packages used this field historically
