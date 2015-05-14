@@ -34,7 +34,7 @@ function find_shims_in_package(pkgJson, cur_path, shims, browser) {
         throw err;
     }
 
-    replacements = getReplacements(info, browser);
+    var replacements = getReplacements(info, browser);
 
     // no replacements, skip shims
     if (!replacements) {
