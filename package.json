@@ -3,6 +3,10 @@
   "version": "1.9.0",
   "description": "resolve which handles browser field support in package.json",
   "main": "index.js",
+  "files": [
+    "index.js",
+    "empty.js"
+  ],
   "scripts": {
     "test": "mocha --reporter list test/*.js"
   },
