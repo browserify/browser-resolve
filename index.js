@@ -169,7 +169,7 @@ function build_resolve_opts(opts, base) {
     };
 
     var pathFilter = opts.pathFilter;
-    opts.pathFilter = function(info, path, relativePath) {
+    opts.pathFilter = function(info, resvPath, relativePath) {
         if (relativePath[0] != '.') {
             relativePath = './' + relativePath;
         }
@@ -187,8 +187,11 @@ function build_resolve_opts(opts, base) {
         }
 
         mappedPath = replacements[relativePath];
-        if (!mappedPath && (relativePath.lastIndexOf('.js') === relativePath.length - 3)) {
+        if (!mappedPath && path.extname(relativePath) === '') {
             mappedPath = replacements[relativePath + '.js'];
+            if (!mappedPath) {
+                mappedPath = replacements[relativePath + '.json'];
+            }
         }
         return mappedPath;
     };
