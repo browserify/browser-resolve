@@ -22,3 +22,14 @@ test('false module', function(done) {
     });
 });
 
+test('false expand path', function(done) {
+    var parent = {
+        filename: fixtures_dir + '/node_modules/module-m/lib/index.js'
+    };
+
+    resolve('./hide', parent, function(err, p, pkg) {
+        assert.ifError(err);
+        assert.equal(p, path.normalize(__dirname + '/../empty.js'));
+        done();
+    });
+});

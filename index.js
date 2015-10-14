@@ -51,24 +51,23 @@ function find_shims_in_package(pkgJson, cur_path, shims, browser) {
 
     // http://nodejs.org/api/modules.html#modules_loading_from_node_modules_folders
     Object.keys(replacements).forEach(function(key) {
+        var val;
         if (replacements[key] === false) {
-            return shims[key] = __dirname + '/empty.js';
+            val = __dirname + '/empty.js';
+        }
+        else {
+            val = replacements[key];
+            // if target is a relative path, then resolve
+            // otherwise we assume target is a module
+            if (val[0] === '.') {
+                val = path.resolve(cur_path, val);
+            }
         }
 
-        var val = replacements[key];
-
-        // if target is a relative path, then resolve
-        // otherwise we assume target is a module
-        if (val[0] === '.') {
-            val = path.resolve(cur_path, val);
+        if (key[0] === '/' || key[0] === '.') {
+            // if begins with / ../ or ./ then we must resolve to a full path
+            key = path.resolve(cur_path, key);
         }
-
-        // if does not begin with / ../ or ./ then it is a module
-        if (key[0] !== '/' && key[0] !== '.') {
-            return shims[key] = val;
-        }
-
-        key = path.resolve(cur_path, key);
         shims[key] = val;
     });
 }
