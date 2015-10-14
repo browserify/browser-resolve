@@ -1,8 +1,12 @@
 {
   "name": "browser-resolve",
-  "version": "1.8.2",
+  "version": "1.9.1",
   "description": "resolve which handles browser field support in package.json",
   "main": "index.js",
+  "files": [
+    "index.js",
+    "empty.js"
+  ],
   "scripts": {
     "test": "mocha --reporter list test/*.js"
   },
