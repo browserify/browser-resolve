@@ -99,6 +99,23 @@ test('deep module reference mapping', function(done) {
     });
 });
 
+// package.json has browser field as object
+// test that file resolves even though the file extension is omitted
+test('deep module reference mapping without file extension - .js', function(done) {
+    resolve('module-n/foo', { basedir: __dirname + '/fixtures', package: { main: 'fixtures' } }, function(err, path, pkg) {
+        assert.ifError(err);
+        assert.equal(path, require.resolve('./fixtures/node_modules/module-n/browser-foo'));
+        done();
+    });
+});
+test('deep module reference mapping without file extension - .json', function(done) {
+    resolve('module-n/bar', { basedir: __dirname + '/fixtures', package: { main: 'fixtures' } }, function(err, path, pkg) {
+        assert.ifError(err);
+        assert.equal(path, require.resolve('./fixtures/node_modules/module-n/browser-bar'));
+        done();
+    });
+});
+
 // browser field in package.json maps ./foo.js -> ./browser.js
 // when we resolve ./foo while in module-e, this mapping should take effect
 // the result is that ./foo resolves to ./browser
