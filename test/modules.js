@@ -296,3 +296,12 @@ test('alt-browser fallback to "browser" on deps of deps', function(done) {
         done();
     });
 });
+
+test('not fail on accessing path name defined in Object.prototype', function (done) {
+    resolve('toString', { paths: [ fixtures_dir ], package: { main: 'fixtures' } }, function(err, path, pkg) {
+        assert.ifError(err);
+        assert.equal(path, require.resolve('./fixtures/node_modules/toString/index'));
+        assert.strictEqual(pkg, undefined);
+        done();
+    });
+});

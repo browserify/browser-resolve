@@ -77,7 +77,7 @@ function find_shims_in_package(pkgJson, cur_path, shims, browser) {
 function load_shims(paths, browser, cb) {
     // identify if our file should be replaced per the browser field
     // original filename|id -> replacement
-    var shims = {};
+    var shims = Object.create(null);
 
     (function next() {
         var cur_path = paths.shift();
@@ -113,7 +113,7 @@ function load_shims(paths, browser, cb) {
 function load_shims_sync(paths, browser) {
     // identify if our file should be replaced per the browser field
     // original filename|id -> replacement
-    var shims = {};
+    var shims = Object.create(null);
     var cur_path;
 
     while (cur_path = paths.shift()) {
@@ -239,7 +239,7 @@ function resolve(id, opts, cb) {
             id = shims[id];
         }
 
-        var modules = opts.modules || {};
+        var modules = opts.modules || Object.create(null);
         var shim_path = modules[id];
         if (shim_path) {
             return cb(null, shim_path);
@@ -295,7 +295,7 @@ resolve.sync = function (id, opts) {
         id = shims[id];
     }
 
-    var modules = opts.modules || {};
+    var modules = opts.modules || Object.create(null);
     var shim_path = modules[id];
     if (shim_path) {
         return shim_path;
