@@ -237,9 +237,9 @@ function resolve(id, opts, cb) {
             return cb(err);
         }
 
-        var resid = path.resolve(opts.basedir || path.dirname(opts.filename), id)
+        var resid = path.resolve(opts.basedir || path.dirname(opts.filename), id);
         if (shims[id] || shims[resid]) {
-            var xid = shims[id] ? id : resid
+            var xid = shims[id] ? id : resid;
             // if the shim was is an absolute path, it was fully resolved
             if (shims[xid][0] === '/') {
                 return resv(shims[xid], build_resolve_opts(opts, base), function(err, full, pkg) {
