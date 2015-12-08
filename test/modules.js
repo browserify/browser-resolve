@@ -305,3 +305,16 @@ test('not fail on accessing path name defined in Object.prototype', function (do
         done();
     });
 });
+
+test('internal relative paths don\'t use browser alternates', function (done) {
+    var parent = {
+        filename: fixtures_dir + '/module-t/lib/index-browser.js'
+    };
+
+    resolve('./index', parent, function(err, path, pkg) {
+        assert.ifError(err);
+        assert.equal(path, require.resolve('./fixtures/node_modules/module-t/lib/index'));
+        done();
+    });
+    
+});
