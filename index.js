@@ -214,8 +214,10 @@ function resolve(id, opts, cb) {
     // opts.packageFilter
 
     opts = opts || {};
-
-    var base = path.dirname(opts.filename);
+    
+    // NOTE: Starting with Node v6+ passing undefined to path.dirname results in a TypeError
+	// If opts.filename is undefined, use the filename that is being executed (e.g. node global: __filename)
+    var base = path.dirname(opts.filename || __filename);
 
     if (opts.basedir) {
         base = opts.basedir;
