@@ -10,15 +10,20 @@ Resolve a module path and call `cb(err, path [, pkg])`
 
 Options:
 
-* `filename` - the calling filename where the `require()` call originated (in the source)
-* `paths` - `require.paths` array to use if nothing is found on the normal `node_modules` recursive walk
-* `packageFilter` - transform the parsed `package.json` contents before looking at the `main` field
-* `modules` - object with module id/name -> path mappings to consult before doing manual resolution (use to provide core modules)
+* `basedir` - directory to begin resolving from
 * `browser` - the 'browser' property to use from package.json (defaults to 'browser')
+* `filename` - the calling filename where the `require()` call originated (in the source)
+* `modules` - object with module id/name -> path mappings to consult before doing manual resolution (use to provide core modules)
+* `packageFilter` - transform the parsed `package.json` contents before looking at the `main` field
+* `paths` - `require.paths` array to use if nothing is found on the normal `node_modules` recursive walk
+
+Options supported by [node-resolve](https://github.com/substack/node-resolve#resolveid-opts-cb) can be used.
 
 ### resolve.sync(id, opts={})
 
 Same as the async resolve, just uses sync methods.
+
+Options supported by [node-resolve](https://github.com/substack/node-resolve#resolvesyncid-opts) `sync` can be used.
 
 ## basic usage
 
