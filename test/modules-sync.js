@@ -33,6 +33,45 @@ test('string browser field as main - require subfile', function() {
     assert.equal(path, require.resolve('./fixtures/node_modules/module-c/bar'));
 });
 
+// package.json has 'browser' field which is a reference to another module
+// the replacement should be respected if the module is resolved 
+test('string browser field as main - alt module', function() {
+    var parent = {
+        filename: fixtures_dir + '/module-t/_fake.js',
+        paths: [ fixtures_dir + '/module-t/node_modules' ],
+        package: { main: './main.js' }
+    };
+
+    var path = resolve.sync('.', parent)
+    assert.equal(path, require.resolve('./fixtures/node_modules/module-b/main'));
+});
+
+// package.json has 'browser' field which is a reference to another module
+// the replacement should be ignored if the file referenced in main is explicitly resolved
+test('string browser field as main - alt module - explicit main', function() {
+    var parent = {
+        filename: fixtures_dir + '/module-t/_fake.js',
+        paths: [ fixtures_dir + '/module-t/node_modules' ],
+        package: { main: './main.js' }
+    };
+
+    var path = resolve.sync('./main.js', parent)
+    assert.equal(path, require.resolve('./fixtures/node_modules/module-t/main'));
+});
+
+// package.json has 'browser' field which is a reference to another module
+// the replacement should be respected if the module is required from another module
+test('string browser field as main - alt module - required from another module', function() {
+    var parent = {
+        filename: fixtures_dir + '/module-u/index.js',
+        paths: [ fixtures_dir ],
+        package: { main: './index.js' }
+    };
+
+    var path = resolve.sync('module-t', parent)
+    assert.equal(path, require.resolve('./fixtures/node_modules/module-b/main'));
+});
+
 // package.json has browser field as object
 // one of the keys replaces the main file
 // this would be done if the user needed to replace main and some other module

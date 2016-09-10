@@ -33,6 +33,57 @@ test('string browser field as main', function(done) {
     });
 });
 
+// package.json has 'browser' field which is a reference to another module
+// the replacement should be respected if the module is resolved 
+test('string browser field as main - alt module', function(done) {
+    var parent = {
+        filename: fixtures_dir + '/module-t/_fake.js',
+        paths: [ fixtures_dir + '/module-t/node_modules' ],
+        package: { main: './main.js' }
+    };
+
+    resolve('.', parent, function(err, path, pkg) {
+        assert.ifError(err);
+        assert.equal(path, require.resolve('./fixtures/node_modules/module-b/main'));
+        assert.equal(pkg.main, './main.js');
+        done();
+    });
+});
+
+// package.json has 'browser' field which is a reference to another module
+// the replacement should be ignored if the file referenced in main is explicitly resolved
+test('string browser field as main - alt module - explicit main', function(done) {
+    var parent = {
+        filename: fixtures_dir + '/module-t/_fake.js',
+        paths: [ fixtures_dir + '/module-t/node_modules' ],
+        package: { main: './main.js' }
+    };
+
+    resolve('./main.js', parent, function(err, path, pkg) {
+        assert.ifError(err);
+        assert.equal(path, require.resolve('./fixtures/node_modules/module-t/main'));
+        assert.equal(pkg.main, './main.js');
+        done();
+    });
+});
+
+// package.json has 'browser' field which is a reference to another module
+// the replacement should be respected if the module is required from another module
+test('string browser field as main - alt module - required from another module', function(done) {
+    var parent = {
+        filename: fixtures_dir + '/module-u/index.js',
+        paths: [ fixtures_dir ],
+        package: { main: './index.js' }
+    };
+
+    resolve('module-t', parent, function(err, path, pkg) {
+        assert.ifError(err);
+        assert.equal(path, require.resolve('./fixtures/node_modules/module-b/main'));
+        assert.equal(pkg.main, require.resolve('./fixtures/node_modules/module-b/main'));
+        done();
+    });
+});
+
 // package.json has 'browser' field which is a string
 test('string browser field as main - require subfile', function(done) {
     var parent = {
