@@ -1,6 +1,6 @@
 # browser-resolve [![Build Status](https://travis-ci.org/defunctzombie/node-browser-resolve.png?branch=master)](https://travis-ci.org/defunctzombie/node-browser-resolve)
 
-node.js resolve algorithm with [browser](https://gist.github.com/defunctzombie/4339901) field support.
+node.js resolve algorithm with [browser field](https://github.com/defunctzombie/package-browser-field-spec) support.
 
 ## api
 
