@@ -45,7 +45,11 @@ function find_shims_in_package(pkgJson, cur_path, shims, browser) {
     // then it just replaces the main entry point
     if (typeof replacements === 'string') {
         var key = path.resolve(cur_path, info.main || 'index.js');
-        shims[key] = path.resolve(cur_path, replacements);
+        if (replacements[0] === '.')
+            shims[key] = path.resolve(cur_path, replacements);
+        else
+            shims[cur_path] = replacements;
+
         return;
     }
 
@@ -164,7 +168,10 @@ function build_resolve_opts(opts, base) {
 
         // replace main
         if (typeof replacements === 'string') {
-            info.main = replacements;
+            if (replacements[0] === '.')
+                info.main = replacements;
+            else 
+                info.main = resv.sync(replacements, build_resolve_opts(opts, info.__dirname || base))
             return info;
         }
 
