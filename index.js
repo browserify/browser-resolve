@@ -92,6 +92,9 @@ function load_shims(paths, browser, cb) {
         if (!cur_path) {
             return cb(null, shims);
         }
+        if (typeof info.browser === 'string') {
+            info.browser = { '.': info.browser };
+        }
 
         var pkg_path = path.join(cur_path, 'package.json');
 
