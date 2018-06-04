@@ -53,7 +53,7 @@ function find_shims_in_package(pkgJson, cur_path, shims, browser) {
     Object.keys(replacements).forEach(function(key) {
         var val;
         if (replacements[key] === false) {
-            val = __dirname + '/empty.js';
+            val = path.normalize(__dirname + '/empty.js');
         }
         else {
             val = replacements[key];
