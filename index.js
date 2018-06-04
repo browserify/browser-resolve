@@ -299,15 +299,17 @@ resolve.sync = function (id, opts) {
 
     // we must always load shims because the browser field could shim out a module
     var shims = load_shims_sync(paths, opts.browser);
+    var resid = path.resolve(opts.basedir || path.dirname(opts.filename), id);
 
-    if (shims[id]) {
+    if (shims[id] || shims[resid]) {
+        var xid = shims[id] ? id : resid;
         // if the shim was is an absolute path, it was fully resolved
-        if (shims[id][0] === '/') {
-            return shims[id];
+        if (shims[xid][0] === '/') {
+            return resv.sync(shims[xid], build_resolve_opts(opts, base));
         }
 
         // module -> alt-module shims
-        id = shims[id];
+        id = shims[xid];
     }
 
     var modules = opts.modules || Object.create(null);
