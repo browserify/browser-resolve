@@ -194,6 +194,20 @@ test('test foobar -> module-b replacement with transform', function(done) {
     });
 });
 
+// browser field in package.json maps "relative file" -> "relative file" with no extension
+test('test ./x -> ./y replacement', function(done) {
+    var parent = {
+        filename: fixtures_dir + '/module-t/index.js',
+        package: { main: './index.js' }
+    };
+
+    resolve('./x', parent, function(err, path, pkg) {
+        assert.ifError(err);
+        assert.equal(path, require.resolve('./fixtures/node_modules/module-t/y.js'));
+        done();
+    });
+});
+
 test('test foobar -> module-i replacement with transform in replacement', function(done) {
     var parent = {
         filename: fixtures_dir + '/module-j/index.js',

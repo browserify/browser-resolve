@@ -73,6 +73,17 @@ test('test foobar -> module-b replacement', function() {
     assert.equal(path, require.resolve('./fixtures/node_modules/module-b/main'));
 });
 
+// browser field in package.json maps "relative file" -> "relative file" with no extension
+test('test ./x -> ./y replacement', function() {
+    var parent = {
+        filename: fixtures_dir + '/module-t/index.js',
+        package: { main: './index.js' }
+    };
+
+    var path = resolve.sync('./x', parent);
+    assert.equal(path, require.resolve('./fixtures/node_modules/module-t/y.js'));
+});
+
 // same as above but replacing core
 test('test core -> module-c replacement', function() {
     var parent = {
