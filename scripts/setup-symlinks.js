@@ -4,5 +4,7 @@ try {
   fs.mkdirSync(__dirname + '/../test/fixtures/node_modules/linker/node_modules');
 } catch (e) {}
 process.chdir(__dirname + '/../test/fixtures/node_modules/linker/node_modules');
-fs.unlinkSync('linked');
+try {
+  fs.unlinkSync('linked');
+} catch (e) {}
 fs.symlinkSync('../../../linked', 'linked', 'dir');
