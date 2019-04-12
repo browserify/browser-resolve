@@ -218,10 +218,14 @@ function resolve(id, opts, callback) {
 
     var cb = function(err, path, pkg) {
         fs.stat(path, function(notPath) {
-            if (notPath) callback(err, path, pkg);
+            if (notPath) {
+                callback(err, path, pkg);
+            }
             else {
                 fs.realpath(path, function(notReal, real) {
-                    if (notReal) callback(err, path, pkg);
+                    if (notReal) {
+                        callback(err, path, pkg);
+                    }
                     else {
                         callback(err, real, pkg);
                     }
