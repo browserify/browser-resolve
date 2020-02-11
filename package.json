@@ -8,7 +8,7 @@
     "empty.js"
   ],
   "scripts": {
-    "test": "mocha --reporter list test/*.js"
+    "test": "node scripts/setup-symlinks.js && mocha --reporter list test/*.js"
   },
   "repository": {
     "type": "git",

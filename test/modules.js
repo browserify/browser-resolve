@@ -319,3 +319,25 @@ test('not fail on accessing path name defined in Object.prototype', function (do
         done();
     });
 });
+
+test('respect symlinks', function (done) {
+    // some systems (e.g. rush, pnpm) use symlinks to create a recursive dependency graph
+    // instead of relying on the hoisting aspect of the node module resolution algorithm (like npm and yarn do)
+    // in these cases, we want to resolve to the real path of a module, so that the tree structure below
+    // only ever tries to run the `x` module once (rather than once on each module that depends on it)
+    //
+    // - node_modules
+    //   - a
+    //     - node_modules
+    //       - symlink to x
+    //   - b
+    //     - node_modules
+    //       - symlink to x
+    //
+    resolve('linked', { paths: [ fixtures_dir + '/linker/node_modules' ], package: { main: 'fixtures' } }, function(err, path, pkg) {
+        assert.ifError(err);
+        assert.equal(path, require.resolve('./fixtures/linked/index'));
+        assert.strictEqual(pkg, undefined);
+        done();
+    });
+});
