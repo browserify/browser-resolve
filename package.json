@@ -24,6 +24,6 @@
     "resolve": "1.1.7"
   },
   "devDependencies": {
-    "mocha": "1.14.0"
+    "mocha": "^2.5.3"
   }
 }
