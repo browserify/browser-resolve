@@ -4,7 +4,7 @@ node.js resolve algorithm with [browser field](https://github.com/defunctzombie/
 
 ## api
 
-### resolve(id, opts={}, cb)
+### bresolve(id, opts={}, cb)
 
 Resolve a module path and call `cb(err, path [, pkg])`
 
@@ -17,20 +17,20 @@ Options:
 * `packageFilter` - transform the parsed `package.json` contents before looking at the `main` field
 * `paths` - `require.paths` array to use if nothing is found on the normal `node_modules` recursive walk
 
-Options supported by [node-resolve](https://github.com/browserify/resolve#resolveid-opts-cb) can be used.
+Additionally, options supported by [node-resolve](https://github.com/browserify/resolve#resolveid-opts-cb) can be used.
 
-### resolve.sync(id, opts={})
+### bresolve.sync(id, opts={})
 
 Same as the async resolve, just uses sync methods.
 
-Options supported by [node-resolve](https://github.com/browserify/resolve#resolvesyncid-opts) `sync` can be used.
+Additionally, options supported by [node-resolve](https://github.com/browserify/resolve#resolvesyncid-opts-cb) can be used.
 
 ## basic usage
 
 you can resolve files like `require.resolve()`:
 ``` js
-var resolve = require('browser-resolve');
-resolve('../', { filename: __filename }, function(err, path) {
+var bresolve = require('browser-resolve');
+bresolve('../', { filename: __filename }, function(err, path) {
     console.log(path);
 });
 ```
@@ -49,37 +49,34 @@ var shims = {
     http: '/your/path/to/http.js'
 };
 
-var resolve = require('browser-resolve');
-resolve('fs', { modules: shims }, function(err, path) {
+var bresolve = require('browser-resolve');
+bresolve('http', { modules: shims }, function(err, path) {
     console.log(path);
 });
 ```
 
 ```
 $ node example/builtin.js
-/home/substack/projects/browser-resolve/builtin/fs.js
+/home/substack/projects/browser-resolve/builtin/http.js
 ```
 
 ## browser field
 browser-specific versions of modules
 
-``` js
+``` json
 {
   "name": "custom",
   "version": "0.0.0",
   "browser": {
     "./main.js": "custom.js"
-  },
-  "chromeapp": {
-    "./main.js": "custom-chromeapp.js"
   }
 }
 ```
 
 ``` js
-var resolve = require('browser-resolve');
-var parent = { filename: __dirname + '/custom/file.js' /*, browser: 'chromeapp' */ };
-resolve('./main.js', parent, function(err, path) {
+var bresolve = require('browser-resolve');
+var parent = { filename: __dirname + '/custom/file.js' };
+bresolve('./main.js', parent, function(err, path) {
     console.log(path);
 });
 ```
@@ -87,6 +84,28 @@ resolve('./main.js', parent, function(err, path) {
 ```
 $ node example/custom.js
 /home/substack/projects/browser-resolve/example/custom/custom.js
+```
+
+You can use different package.json properties for the resolution, if you want to allow packages to target different environments for example:
+
+``` json
+{
+  "browser": { "./main.js": "custom.js" },
+  "chromeapp": { "./main.js": "custom-chromeapp.js" }
+}
+```
+
+``` js
+var bresolve = require('browser-resolve');
+var parent = { filename: __dirname + '/custom/file.js', browser: 'chromeapp' };
+bresolve('./main.js', parent, function(err, path) {
+    console.log(path);
+});
+```
+
+```
+$ node example/custom.js
+/home/substack/projects/browser-resolve/example/custom/custom-chromeapp.js
 ```
 
 ## skip
@@ -123,9 +142,9 @@ so that `require('tar')` will just return `{}` in the browser because you don't
 intend to support the `.parse()` export in a browser environment.
 
 ``` js
-var resolve = require('browser-resolve');
+var bresolve = require('browser-resolve');
 var parent = { filename: __dirname + '/skip/main.js' };
-resolve('tar', parent, function(err, path) {
+bresolve('tar', parent, function(err, path) {
     console.log(path);
 });
 ```
@@ -141,6 +160,6 @@ MIT
 
 # upgrade notes
 
-Prior to v1.x this library provided shims for node core modules. These have since been removed. If you want to have alternative core modules provided, use the `modules` option when calling resolve.
+Prior to v1.x this library provided shims for node core modules. These have since been removed. If you want to have alternative core modules provided, use the `modules` option when calling `bresolve()`.
 
 This was done to allow package managers to choose which shims they want to use without browser-resolve being the central point of update.
