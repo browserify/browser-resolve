@@ -8,7 +8,7 @@ test('index.js of module dir', function(done) {
     resolve('module-a', { paths: [ fixtures_dir ], package: { main: 'fixtures' } }, function(err, path, pkg) {
         assert.ifError(err);
         assert.equal(path, require.resolve('./fixtures/node_modules/module-a/index'));
-        assert.strictEqual(pkg, undefined);
+        assert.strictEqual(pkg.main, 'fixtures');
         done();
     });
 });
@@ -70,7 +70,7 @@ test('string alt browser field as main - require subfile', function(done) {
 // one of the keys replaces the main file
 // this would be done if the user needed to replace main and some other module
 test('object browser field as main', function(done) {
-    resolve('module-d', { paths: [ fixtures_dir ], package: { main: 'fixtures' } }, function(err, path, pkg) {
+    resolve('module-d', { paths: [ fixtures_dir ] }, function(err, path, pkg) {
         assert.ifError(err);
         assert.equal(path, require.resolve('./fixtures/node_modules/module-d/browser'));
         assert.equal(pkg.main, './browser.js');
@@ -82,7 +82,7 @@ test('object browser field as main', function(done) {
 // one of the keys replaces the main file
 // however the main has no prefix and browser uses ./ prefix for the same file
 test('object browser field as main', function(done) {
-    resolve('module-k', { paths: [ fixtures_dir ], package: { main: 'fixtures' } }, function(err, path, pkg) {
+    resolve('module-k', { paths: [ fixtures_dir ] }, function(err, path, pkg) {
         assert.ifError(err);
         assert.equal(path, require.resolve('./fixtures/node_modules/module-k/browser'));
         assert.equal(pkg.main, './browser.js');
@@ -91,7 +91,7 @@ test('object browser field as main', function(done) {
 });
 
 test('deep module reference mapping', function(done) {
-    resolve('module-l/direct', { basedir: __dirname + '/fixtures', package: { main: 'fixtures' } }, function(err, path, pkg) {
+    resolve('module-l/direct', { basedir: __dirname + '/fixtures' }, function(err, path, pkg) {
         assert.ifError(err);
         assert.equal(path, require.resolve('./fixtures/node_modules/module-l/browser-direct'));
         assert.equal(pkg.main, './browser.js');
@@ -102,14 +102,14 @@ test('deep module reference mapping', function(done) {
 // package.json has browser field as object
 // test that file resolves even though the file extension is omitted
 test('deep module reference mapping without file extension - .js', function(done) {
-    resolve('module-n/foo', { basedir: __dirname + '/fixtures', package: { main: 'fixtures' } }, function(err, path, pkg) {
+    resolve('module-n/foo', { basedir: __dirname + '/fixtures' }, function(err, path, pkg) {
         assert.ifError(err);
         assert.equal(path, require.resolve('./fixtures/node_modules/module-n/browser-foo'));
         done();
     });
 });
 test('deep module reference mapping without file extension - .json', function(done) {
-    resolve('module-n/bar', { basedir: __dirname + '/fixtures', package: { main: 'fixtures' } }, function(err, path, pkg) {
+    resolve('module-n/bar', { basedir: __dirname + '/fixtures' }, function(err, path, pkg) {
         assert.ifError(err);
         assert.equal(path, require.resolve('./fixtures/node_modules/module-n/browser-bar'));
         done();
@@ -285,7 +285,6 @@ test('alt-browser field', function(done) {
 test('alt-browser deep module reference mapping', function(done) {
     resolve('alt-browser-field/direct', {
         basedir: __dirname + '/fixtures',
-        package: { main: 'fixtures' },
         browser: 'chromeapp'
     }, function(err, path, pkg) {
         assert.ifError(err);
@@ -312,10 +311,9 @@ test('alt-browser fallback to "browser" on deps of deps', function(done) {
 });
 
 test('not fail on accessing path name defined in Object.prototype', function (done) {
-    resolve('toString', { paths: [ fixtures_dir ], package: { main: 'fixtures' } }, function(err, path, pkg) {
+    resolve('toString', { paths: [ fixtures_dir ] }, function(err, path, pkg) {
         assert.ifError(err);
         assert.equal(path, require.resolve('./fixtures/node_modules/toString/index'));
-        assert.strictEqual(pkg, undefined);
         done();
     });
 });
@@ -334,10 +332,9 @@ test('respect symlinks', function (done) {
     //     - node_modules
     //       - symlink to x
     //
-    resolve('linked', { paths: [ fixtures_dir + '/linker/node_modules' ], package: { main: 'fixtures' } }, function(err, path, pkg) {
+    resolve('linked', { paths: [ fixtures_dir + '/linker/node_modules' ] }, function(err, path, pkg) {
         assert.ifError(err);
         assert.equal(path, require.resolve('./fixtures/linked/index'));
-        assert.strictEqual(pkg, undefined);
         done();
     });
 });
