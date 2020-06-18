@@ -12,7 +12,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git://github.com/shtylman/node-browser-resolve.git"
+    "url": "git://github.com/browserify/browser-resolve.git"
   },
   "keywords": [
     "resolve",

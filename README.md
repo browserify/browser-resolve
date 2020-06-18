@@ -1,4 +1,4 @@
-# browser-resolve [![Build Status](https://travis-ci.org/defunctzombie/node-browser-resolve.png?branch=master)](https://travis-ci.org/defunctzombie/node-browser-resolve)
+# browser-resolve [![Build Status](https://travis-ci.org/browserify/browser-resolve.png?branch=master)](https://travis-ci.org/browserify/browser-resolve)
 
 node.js resolve algorithm with [browser field](https://github.com/defunctzombie/package-browser-field-spec) support.
 
@@ -17,13 +17,13 @@ Options:
 * `packageFilter` - transform the parsed `package.json` contents before looking at the `main` field
 * `paths` - `require.paths` array to use if nothing is found on the normal `node_modules` recursive walk
 
-Options supported by [node-resolve](https://github.com/substack/node-resolve#resolveid-opts-cb) can be used.
+Options supported by [node-resolve](https://github.com/browserify/resolve#resolveid-opts-cb) can be used.
 
 ### resolve.sync(id, opts={})
 
 Same as the async resolve, just uses sync methods.
 
-Options supported by [node-resolve](https://github.com/substack/node-resolve#resolvesyncid-opts) `sync` can be used.
+Options supported by [node-resolve](https://github.com/browserify/resolve#resolvesyncid-opts) `sync` can be used.
 
 ## basic usage
 
@@ -37,7 +37,7 @@ resolve('../', { filename: __filename }, function(err, path) {
 
 ```
 $ node example/resolve.js
-/home/substack/projects/node-browser-resolve/index.js
+/home/substack/projects/browser-resolve/index.js
 ```
 
 ## core modules
@@ -57,7 +57,7 @@ resolve('fs', { modules: shims }, function(err, path) {
 
 ```
 $ node example/builtin.js
-/home/substack/projects/node-browser-resolve/builtin/fs.js
+/home/substack/projects/browser-resolve/builtin/fs.js
 ```
 
 ## browser field
@@ -86,7 +86,7 @@ resolve('./main.js', parent, function(err, path) {
 
 ```
 $ node example/custom.js
-/home/substack/projects/node-browser-resolve/example/custom/custom.js
+/home/substack/projects/browser-resolve/example/custom/custom.js
 ```
 
 ## skip
@@ -132,7 +132,7 @@ resolve('tar', parent, function(err, path) {
 
 ```
 $ node example/skip.js
-/home/substack/projects/node-browser-resolve/empty.js
+/home/substack/projects/browser-resolve/empty.js
 ```
 
 # license
