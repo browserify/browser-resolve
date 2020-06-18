@@ -206,7 +206,7 @@ function build_resolve_opts(opts, base) {
     return opts;
 }
 
-function resolve(id, opts, callback) {
+function resolve(id, opts, cb) {
 
     // opts.filename
     // opts.paths
@@ -215,24 +215,6 @@ function resolve(id, opts, callback) {
 
     opts = opts || {};
     opts.filename = opts.filename || '';
-
-    var cb = function(err, path, pkg) {
-        fs.stat(path, function(notPath) {
-            if (notPath) {
-                callback(err, path, pkg);
-            }
-            else {
-                fs.realpath(path, function(notReal, real) {
-                    if (notReal) {
-                        callback(err, path, pkg);
-                    }
-                    else {
-                        callback(err, real, pkg);
-                    }
-                });
-            }
-        });
-    }
 
     var base = path.dirname(opts.filename);
 

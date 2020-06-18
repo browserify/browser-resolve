@@ -332,7 +332,7 @@ test('respect symlinks', function (done) {
     //     - node_modules
     //       - symlink to x
     //
-    resolve('linked', { paths: [ fixtures_dir + '/linker/node_modules' ] }, function(err, path, pkg) {
+    resolve('linked', { paths: [ fixtures_dir + '/linker/node_modules' ], preserveSymlinks: false }, function(err, path, pkg) {
         assert.ifError(err);
         assert.equal(path, require.resolve('./fixtures/linked/index'));
         done();
