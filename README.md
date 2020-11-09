@@ -57,7 +57,7 @@ bresolve('http', { modules: shims }, function(err, path) {
 
 ```
 $ node example/builtin.js
-/home/substack/projects/browser-resolve/builtin/http.js
+/your/path/to/http.js
 ```
 
 ## browser field
