@@ -4,6 +4,7 @@ var path = require('path');
 
 // vendor
 var resv = require('resolve');
+var process = require('process');
 
 // given a path, create an array of node_module paths for it
 // borrowed from substack/resolve
