@@ -338,3 +338,11 @@ test('respect symlinks', function (done) {
         done();
     });
 });
+
+test('allow overriding entry point in browser field', function (done) {
+    resolve('entry-point-overridden-in-browser-field', { paths: [ fixtures_dir ] }, function(err, path, pkg) {
+        assert.ifError(err);
+        assert.equal(path, require.resolve('./fixtures/node_modules/entry-point-overridden-in-browser-field/foo/bar.js'));
+        done();
+    });
+});
