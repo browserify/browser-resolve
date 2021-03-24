@@ -169,7 +169,9 @@ function build_resolve_opts(opts, base) {
         }
 
         var replace_main = replacements[info.main || './index.js'] ||
-            replacements['./' + info.main || './index.js'];
+            replacements['./' + info.main || './index.js'] ||
+            replacements['.'] ||
+            replacements['./'];
 
         info.main = replace_main || info.main;
         return info;

@@ -158,3 +158,8 @@ test('alt-browser field', function() {
     var path = resolve.sync('url', parent);
     assert.equal(path, require.resolve('./fixtures/node_modules/alt-browser-field/url-chromeapp'));
 });
+
+test('allow overriding entry point in browser field', function() {
+    var path = resolve.sync('entry-point-overridden-in-browser-field', { paths: [ fixtures_dir ], package: { main: 'fixtures' } });
+    assert.equal(path, require.resolve('./fixtures/node_modules/entry-point-overridden-in-browser-field/foo/bar.js'));
+});
